@@ -5,7 +5,7 @@ const CACHE_NAME = "xassida-cache-v1";
 const ASSETS = [
   "./",
   "./index.html",
-  "./xc.png",
+  "./logo.png",
   "./logo.png",
   "./manifest.json",
   "https://cdn.tailwindcss.com"
@@ -35,3 +35,4 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
