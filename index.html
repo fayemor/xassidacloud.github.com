@@ -1214,6 +1214,14 @@
                 margin: 0.25rem 0;
             }
         }
+
+        article img {
+            transition: transform 0.3s ease;
+        }
+
+        article:hover img {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 
@@ -1229,7 +1237,7 @@
 
 
 
-   
+
 
 
     <!-- Header -->
@@ -4738,6 +4746,31 @@
         applyTheme(localStorage.getItem('theme') || 'dark');
         themeToggle.addEventListener('click', () => applyTheme(htmlEl.classList.contains('light') ? 'dark' : 'light'));
 
+
+        /* 🔹 Génère automatiquement une miniature pour les vidéos */
+        function getVideoThumbnail(link) {
+            if (!link) return '';
+
+            // 🎬 Si c’est une vidéo YouTube
+            if (link.includes('youtu')) {
+                const match = link.match(/(?:v=|\/embed\/|youtu\.be\/)([^"&?\/\s]+)/);
+                if (match && match[1]) {
+                    return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+                }
+            }
+
+            // 🎥 Si c’est une vidéo Google Drive
+            if (link.includes('drive.google.com')) {
+                const id = (link.match(/\/d\/([^\/]+)\//) || [])[1];
+                if (id) return `https://drive.google.com/thumbnail?id=${id}`;
+            }
+
+            // 🔸 Sinon aucune miniature disponible
+            return '';
+        }
+
+
+
         /* Build card */
         function buildCard(item, kind) {
             const key = registerItem({...item, kind});
@@ -4746,7 +4779,19 @@
             const el = document.createElement('article');
             el.className = 'rounded-xl p-4 glass hover:shadow-lg transition flex flex-col h-full';
             el.innerHTML = `
-    <div class="h-32 rounded-md bg-gradient-to-br from-black/20 to-white/5 flex items-center justify-center text-3xl font-extrabold text-amber-400">${esc(initials)}</div>
+   
+
+            ${kind === 'v'
+                    ? (() => {
+                        const thumb = getVideoThumbnail(item.link);
+                        return thumb
+                            ? `<img src="${thumb}" alt="Miniature vidéo" class="w-full h-40 object-cover rounded-md"/>`
+                            : `<div class="h-40 rounded-md bg-gradient-to-br from-black/20 to-white/5 flex items-center justify-center text-3xl font-extrabold text-amber-400">${esc(initials)}</div>`;
+                    })()
+                    : `<div class="h-40 rounded-md bg-gradient-to-br from-black/20 to-white/5 flex items-center justify-center text-3xl font-extrabold text-amber-400">${esc(initials)}</div>`
+                }
+
+
     <h3 class="mt-3 font-semibold text-lg">${esc(item.title)}</h3>
     <p class="text-sm text-slate-300 mt-1">${esc(item.author || item.speaker || '')}</p>
     <div class="mt-3 flex items-center justify-between gap-2">
@@ -5124,5 +5169,3 @@
 
 
 </html>
-
-
