@@ -1,34 +1,37 @@
-const CACHE_NAME = 'xassida-cloud-v1';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/xc.png',
-  '/manifest.json',
-  // ajoute ici tous tes fichiers CSS / JS / images nécessaires
+// Nom du cache
+const CACHE_NAME = "xassida-cache-v1";
+
+// Fichiers à mettre en cache au premier chargement
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./xc.png",
+  "./logo.png",
+  "./manifest.json",
+  "https://cdn.tailwindcss.com"
 ];
 
-// 🧩 Installation : mise en cache initiale
-self.addEventListener('install', event => {
+// Installation : met en cache les fichiers statiques
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
-  console.log('✅ Xassida Cloud installé et mis en cache');
 });
 
-// 🌀 Activation : nettoyage ancien cache
-self.addEventListener('activate', event => {
+// Activation : nettoyage ancien cache
+self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then(keys =>
+    caches.keys().then((keys) =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     )
   );
 });
 
-// ⚡ Interception des requêtes réseau
-self.addEventListener('fetch', event => {
+// Interception des requêtes réseau
+self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
-      .catch(() => caches.match('/index.html'))
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
   );
 });
