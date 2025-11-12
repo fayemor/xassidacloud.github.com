@@ -1222,6 +1222,52 @@
         article:hover img {
             transform: scale(1.05);
         }
+
+        /* Spinner circular (sniper) pour doc modal */
+        .doc-spinner {
+            width: 56px;
+            height: 56px;
+            border-radius: 9999px;
+            border: 6px solid rgba(255, 255, 255, 0.12);
+            border-top-color: #38bdf8;
+            /* change en #f59e0b pour doré */
+            animation: doc-spin 0.9s linear infinite;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), inset 0 -6px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Overlay centré */
+        #docSpinner {
+            background: rgba(0, 0, 0, 0.45);
+            /* overlay semi-transparent */
+            display: none;
+            /* controlled by JS */
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* animation */
+        @keyframes doc-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* helper pour hidden state */
+        #docSpinner.hidden {
+            display: none !important;
+            pointer-events: none;
+        }
+
+        #docSpinner:not(.hidden) {
+            display: flex !important;
+            pointer-events: auto;
+        }
+
+        #docSpinnerText {
+            color: #fff;
+            font-weight: 600;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -1428,10 +1474,35 @@
                     <button id="docCloseTop" class="modal-close" aria-label="Fermer la modale">✖</button>
                 </div>
             </div>
+
             <iframe id="docFrame" class="w-full h-full border-0" title="Lecteur document"></iframe>
-            <!-- Bottom-right close -->
+
+            <!-- Spinner overlay : visible pendant le chargement -->
+            <div id="docSpinner" class="absolute inset-0 z-50 hidden items-center justify-center">
+                <div class="flex flex-col items-center gap-3 pointer-events-auto">
+                    <div class="sr-only" id="docSpinnerLabel">Chargement du document en cours</div>
+                    <div class="doc-spinner" role="status" aria-live="polite" aria-labelledby="docSpinnerLabel"
+                        aria-busy="true"></div>
+                    <!-- petit texte facultatif -->
+                    <div id="docSpinnerText" class="text-sm text-white mt-2">Chargement…</div>
+                </div>
+            </div>
+
             <button id="docCloseBottom" class="modal-bottom-close" aria-label="Fermer la modale">✖</button>
+
+
         </div>
+
+        <!-- spinner minimal : visible au-dessus de l'iframe pendant le chargement -->
+        <div id="docSpinner" class="absolute inset-0 z-50 hidden items-center justify-center">
+            <div class="flex flex-col items-center gap-3 pointer-events-auto">
+                <div class="sr-only" id="docSpinnerLabel">Chargement du document en cours</div>
+                <div class="doc-spinner" role="status" aria-live="polite" aria-labelledby="docSpinnerLabel"
+                    aria-busy="true"></div>
+            </div>
+        </div>
+
+
     </div>
 
     <!-- Video modal -->
@@ -4879,27 +4950,126 @@
             }
         });
 
-        /* Modal logic */
-        const docModal = document.getElementById('docModal'), docFrame = document.getElementById('docFrame');
-        const docTitle = document.getElementById('docTitle'), docMeta = document.getElementById('docMeta');
-        const docCloseTop = document.getElementById('docCloseTop'), docCloseBottom = document.getElementById('docCloseBottom'), docDownload = document.getElementById('docDownload');
+        // Refs (assure-toi qu'il n'existe pas d'autre const docFrame/docModal défini ailleurs)
+        const docModal = document.getElementById('docModal');
+        const docFrame = document.getElementById('docFrame');
+        const docTitle = document.getElementById('docTitle');
+        const docMeta = document.getElementById('docMeta');
+        const docDownload = document.getElementById('docDownload');
+        const docCloseTop = document.getElementById('docCloseTop');
+        const docCloseBottom = document.getElementById('docCloseBottom');
+
+        const docSpinner = document.getElementById('docSpinner');
+        const docSpinnerText = document.getElementById('docSpinnerText');
+
+        // Safety: if any of these are missing, log and stop
+        if (!docModal || !docFrame) {
+            console.warn('docModal ou docFrame introuvable — vérifie les IDs dans le HTML.');
+        }
+
+        // show/hide spinner
+        function showDocSpinner(text = 'Chargement…') {
+            if (!docSpinner) return;
+            if (docSpinner.classList.contains('hidden')) docSpinner.classList.remove('hidden');
+            docSpinnerText && (docSpinnerText.textContent = text);
+            docSpinner.style.display = 'flex';
+        }
+
+        function hideDocSpinner() {
+            if (!docSpinner) return;
+            docSpinner.classList.add('hidden');
+            docSpinner.style.display = 'none';
+        }
+
+        // Clean event listeners helper
+        function cleanupDocFrameListeners(onLoad, onError) {
+            try {
+                docFrame.removeEventListener('load', onLoad);
+                docFrame.removeEventListener('error', onError);
+            } catch (e) { /* ignore */}
+        }
+
+        // Nouvelle openDocModal — remplace l'ancienne
 
         function openDocModal(item) {
-            docModal._current = item;
-            docTitle.textContent = item.title || '';
-            docMeta.textContent = item.author || '';
-            docFrame.src = toPreview(item.driveLink || '');
-            docModal.classList.remove('hidden'); docModal.classList.add('flex');
+            if (!docModal || !docFrame) return alert('Modal ou iframe manquant.');
+
+            // Titre & auteur
+            if (docTitle) docTitle.textContent = item.title || '';
+            if (docMeta) docMeta.textContent = item.author || '';
+
+            // Lien de prévisualisation
+            const previewUrl = toPreview(item.driveLink || '');
+
+            // Affiche le modal + le spinner
+            docModal.classList.remove('hidden');
+            docModal.classList.add('flex');
             document.documentElement.style.overflow = 'hidden';
-            // make sure close buttons visible (style)
-            setTimeout(() => {docCloseBottom.classList.toggle('light', document.documentElement.classList.contains('light'))}, 60);
-        }
-        function closeDocModal() {
-            docModal.classList.add('hidden'); docModal.classList.remove('flex');
+            showDocSpinner('Chargement du document…');
+
+            let settled = false;
+            const MIN_VISIBLE_TIME = 2000; // le spinner reste au moins 1.5s
+            const startTime = Date.now();
+
+            // Supprime anciens listeners avant d'en ajouter
+            docFrame.onload = null;
+            docFrame.onerror = null;
+
+            // Lorsqu’on pense que le document est chargé
+            docFrame.onload = () => {
+                if (settled) return;
+                settled = true;
+
+                const elapsed = Date.now() - startTime;
+                const remaining = Math.max(0, MIN_VISIBLE_TIME - elapsed);
+
+                // attend au moins 1.5s avant de cacher le spinner
+                setTimeout(() => {
+                    hideDocSpinner();
+                }, remaining);
+            };
+
+            // Si erreur → garde un peu le spinner, puis le cache
+            docFrame.onerror = () => {
+                if (settled) return;
+                settled = true;
+                setTimeout(() => {
+                    hideDocSpinner();
+                    alert('Impossible de charger le document.');
+                }, 1800);
+            };
+
+            // Forcer le rechargement (évite le cache de src)
             docFrame.src = 'about:blank';
+            setTimeout(() => {
+                docFrame.src = previewUrl;
+            }, 80);
+
+            // Sauvegarde l’état courant
+            docModal._current = item;
+        }
+
+
+        // Nouvelle closeDocModal — remplace l'ancienne
+        function closeDocModal() {
+            if (!docModal || !docFrame) return;
+            docModal.classList.add('hidden'); docModal.classList.remove('flex');
+            // reset iframe src et spinner
+            try {docFrame.src = 'about:blank';} catch (e) { }
+            hideDocSpinner();
             docModal._current = null;
             document.documentElement.style.overflow = '';
         }
+
+        // wire close buttons if not already wired
+        if (docCloseTop) docCloseTop.addEventListener('click', closeDocModal);
+        if (docCloseBottom) docCloseBottom.addEventListener('click', closeDocModal);
+
+        // Also close when clicking outside modal (existing pattern)
+        docModal && docModal.addEventListener('click', (e) => {if (e.target === docModal) closeDocModal();});
+
+
+
         docCloseTop.addEventListener('click', closeDocModal);
         docCloseBottom.addEventListener('click', closeDocModal);
         docDownload.addEventListener('click', async () => {
