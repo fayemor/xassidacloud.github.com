@@ -16,8 +16,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <link rel="icon" href="xc.png" />
-    <link rel="manifest" href="manifest.json">
-
 
     <!-- Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -1448,7 +1446,7 @@
         </section>
 
         <footer class="app-footer">
-            <p>© <span id="year"></span> Xassida Cloud — Version 2.0</p>
+            <p>© <span id="year"></span> Xassida Cloud — Développé par Mor Faye</p>
             <p>
                 Contact :
                 <a href="mailto:xassidacloud@gmail.com" class="footer-mail">
@@ -5010,7 +5008,7 @@
             showDocSpinner('Chargement du document…');
 
             let settled = false;
-            const MIN_VISIBLE_TIME = 3000; // le spinner reste au moins 1.5s
+            const MIN_VISIBLE_TIME = 20000; // le spinner reste au moins 1.5s
             const startTime = Date.now();
 
             // Supprime anciens listeners avant d'en ajouter
@@ -5337,20 +5335,7 @@
     </script>
 
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker
-                    .register('./sw.js')
-                    .then(reg => console.log('✅ Service Worker enregistré.', reg.scope))
-                    .catch(err => console.warn('❌ Échec Service Worker', err));
-            });
-        }
-    </script>
-
-
 </body>
 
 
 </html>
-
