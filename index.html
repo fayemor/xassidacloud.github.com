@@ -1280,60 +1280,7 @@
         .modal-inner .flex.items-center.gap-2 button {
             margin-right: 0 !important;
         }
-
-
-        /* Animation affichage modal */
-        .modal-animate {
-            opacity: 0;
-            transform: scale(0.85) translateY(20px);
-            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .modal-animate.show {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
     </style>
-
-
-    <!-- ===========================
-     META SEO PRINCIPALES
-=========================== -->
-    <title>Xassida Cloud — Bibliothèque numérique</title>
-    <meta name="description"
-        content="Xassida Cloud — partage de Xassidas, livres et vidéos. Lecture intégrée, visionnage intégré et téléchargement.">
-    <meta name="theme-color" content="#b45309">
-
-    <!-- ===========================
-     FAVICON & APP ICONS
-=========================== -->
-    <link rel="icon" href="https://www.xassidacloud.com/logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://www.xassidacloud.com/logo.png">
-    <link rel="manifest" href="/manifest.json">
-
-    <!-- ===========================
-     OPEN GRAPH (Facebook, WhatsApp, etc.)
-=========================== -->
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Xassida Cloud">
-    <meta property="og:title" content="Xassida Cloud — Bibliothèque numérique">
-    <meta property="og:description"
-        content="Accédez aux Xassidas, livres et vidéos — lecture intégrée et visionnage intégré.">
-    <meta property="og:url" content="https://www.xassidacloud.com/">
-    <meta property="og:image" content="https://www.xassidacloud.com/logo.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-
-    <!-- ===========================
-     TWITTER CARDS
-=========================== -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Xassida Cloud — Bibliothèque numérique">
-    <meta name="twitter:description" content="Accédez aux Xassidas, livres et vidéos — lecture et visionnage intégrés.">
-    <meta name="twitter:image" content="https://www.xassidacloud.com/logo.png">
-
-
-    </script>
 
 
 
@@ -1528,7 +1475,7 @@
     </main>
 
     <!-- Document modal -->
-    <div id="docModal" class="fixed inset-0 z-70 hidden items-center justify-center modal-animate">
+    <div id="docModal" class="fixed inset-0 z-70 hidden items-center justify-center">
         <div class="absolute inset-0 bg-black/60 backdrop-blur"></div>
         <div class="relative w-[95%] max-w-6xl h-[90vh] bg-white dark:bg-slate-900 rounded-xl overflow-hidden">
             <!-- Top header with close X (replaces external window icon) -->
@@ -1577,8 +1524,7 @@
     </div>
 
     <!-- Video modal -->
-    <div id="vidModal" class="fixed inset-0 z-70 hidden items-center justify-center modal-animate">
-
+    <div id="vidModal" class="fixed inset-0 z-70 hidden items-center justify-center">
         <div class="absolute inset-0 bg-black/60 backdrop-blur"></div>
         <div class="relative w-[95%] max-w-3xl bg-black rounded-xl overflow-hidden">
             <div class="modal-inner flex items-center justify-between p-3 border-b border-slate-200/10 bg-slate-900">
@@ -5060,14 +5006,6 @@
         // Nouvelle openDocModal — remplace l'ancienne
 
         function openDocModal(item) {
-
-            docModal.classList.remove("hidden");
-            docModal.classList.add("flex");
-
-            setTimeout(() => {
-                docModal.classList.add("show");
-            }, 20); // petit délai pour déclencher l'animation
-
             docTitle.textContent = item.title || '';
             docMeta.textContent = item.author || '';
 
@@ -5114,14 +5052,6 @@
 
         // Nouvelle closeDocModal — remplace l'ancienne
         function closeDocModal() {
-            docModal.classList.remove("show");
-
-            setTimeout(() => {
-                docModal.classList.add("hidden");
-                docModal.classList.remove("flex");
-            }, 300); // durée = transition CSS
-
-
             docModal.classList.add("hidden");
             docModal.classList.remove("flex");
 
@@ -5157,14 +5087,6 @@
         const vidCloseTop = document.getElementById('vidCloseTop'), vidCloseBottom = document.getElementById('vidCloseBottom'), vidDownload = document.getElementById('vidDownload');
 
         function openVidModal(item) {
-
-            vidModal.classList.remove("hidden");
-            vidModal.classList.add("flex");
-
-            setTimeout(() => {
-                vidModal.classList.add("show");
-            }, 20);
-
             vidModal._current = item;
             vidTitle.textContent = item.title || '';
             vidMeta.textContent = item.speaker || '';
@@ -5231,14 +5153,6 @@
 
 
         function closeVidModal() {
-
-            vidModal.classList.remove("show");
-
-            setTimeout(() => {
-                vidModal.classList.add("hidden");
-                vidModal.classList.remove("flex");
-            }, 300);
-
             vidModal.classList.add('hidden'); vidModal.classList.remove('flex');
             vidFrame.src = '';
             vidModal._current = null;
