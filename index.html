@@ -1270,6 +1270,22 @@
             font-weight: 600;
             text-align: center;
         }
+
+        #installBanner {
+            animation: popIn 0.4s ease forwards;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: translate(-50%, 40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -1447,8 +1463,15 @@
             </div>
         </section>
 
+        <div id="installBanner"
+            class="fixed bottom-4 left-1/2 -translate-x-1/2 px-5 py-3 bg-amber-500 text-black font-semibold rounded-xl shadow-xl flex items-center gap-3 hidden z-[9999]">
+            <span>📲 Installer l’application</span>
+            <button id="btnInstall" class="px-3 py-1 bg-black text-white rounded-lg">Installer</button>
+        </div>
+
+
         <footer class="app-footer">
-            <p>© <span id="year"></span> Xassida Cloud — Version 2.0</p>
+            <p>© <span id="year"></span> Xassida Cloud — Développé par Mor Faye</p>
             <p>
                 Contact :
                 <a href="mailto:xassidacloud@gmail.com" class="footer-mail">
@@ -5349,8 +5372,55 @@
     </script>
 
 
+    <script>
+        let deferredPrompt = null;
+        const banner = document.getElementById("installBanner");
+        const btnInstall = document.getElementById("btnInstall");
+
+        // 🔥 1) Capture l'événement d'installation possible (Chrome/Android)
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            banner.classList.remove("hidden");
+        });
+
+        // 🟡 2) Quand l’utilisateur clique sur Installer
+        btnInstall.addEventListener("click", async () => {
+            if (!deferredPrompt) return;
+
+            deferredPrompt.prompt();
+
+            const result = await deferredPrompt.userChoice;
+            console.log("Résultat installation :", result);
+
+            // utilisateur accepte → cacher la bannière
+            if (result.outcome === "accepted") {
+                banner.classList.add("hidden");
+                deferredPrompt = null;
+            }
+        });
+
+        // 🍎 3) iPhone (Safari) → pas de beforeinstallprompt
+        // On détecte si l'app n'est PAS installée
+        if (navigator.userAgent.match(/iPhone|iPad|iPod/)) {
+            if (!window.navigator.standalone) {
+                // Montre une bannière spéciale iOS
+                setTimeout(() => {
+                    banner.innerHTML = "📲 Pour installer :<br>Partager → Ajouter à l’écran d’accueil";
+                    banner.classList.remove("hidden");
+                }, 1500);
+            }
+        }
+
+        // 🟢 4) Quand l'app est installée → cacher la bannière
+        window.addEventListener("appinstalled", () => {
+            console.log("App installée !");
+            banner.classList.add("hidden");
+        });
+    </script>
+
+
 </body>
 
 
 </html>
-
