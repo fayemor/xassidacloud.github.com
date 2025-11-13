@@ -20,6 +20,11 @@
     <!-- Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- PDF.js Viewer -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf_viewer.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
+
+
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -1223,52 +1228,102 @@
             transform: scale(1.05);
         }
 
-        /* Spinner circular (sniper) pour doc modal */
+        /* 🌟 Spinner Doré Premium */
         .doc-spinner {
-            width: 56px;
-            height: 56px;
-            border-radius: 9999px;
-            border: 6px solid rgba(255, 255, 255, 0.12);
-            border-top-color: #38bdf8;
-            /* change en #f59e0b pour doré */
-            animation: doc-spin 0.9s linear infinite;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), inset 0 -6px 10px rgba(0, 0, 0, 0.08);
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 215, 0, 0.15);
+            /* Doré très léger */
+            border-top-color: #ffd700;
+            /* 💛 Or vif */
+            border-right-color: #ffbf00;
+            /* 💛 Or plus foncé */
+            animation: goldSpin 0.85s linear infinite;
+            box-shadow: 0 0 15px rgba(255, 200, 0, 0.6),
+                0 0 30px rgba(255, 200, 0, 0.3);
         }
 
-        /* Overlay centré */
-        #docSpinner {
-            background: rgba(0, 0, 0, 0.45);
-            /* overlay semi-transparent */
-            display: none;
-            /* controlled by JS */
-            align-items: center;
-            justify-content: center;
-        }
+        @keyframes goldSpin {
+            0% {
+                transform: rotate(0deg);
+                box-shadow: 0 0 12px rgba(255, 200, 0, 0.5),
+                    0 0 25px rgba(255, 200, 0, 0.25);
+            }
 
-        /* animation */
-        @keyframes doc-spin {
-            to {
+            50% {
+                transform: rotate(180deg);
+                box-shadow: 0 0 18px rgba(255, 210, 0, 0.9),
+                    0 0 35px rgba(255, 210, 0, 0.45);
+            }
+
+            100% {
                 transform: rotate(360deg);
+                box-shadow: 0 0 12px rgba(255, 200, 0, 0.5),
+                    0 0 25px rgba(255, 200, 0, 0.25);
             }
         }
 
-        /* helper pour hidden state */
-        #docSpinner.hidden {
-            display: none !important;
-            pointer-events: none;
-        }
-
-        #docSpinner:not(.hidden) {
-            display: flex !important;
-            pointer-events: auto;
-        }
-
-        #docSpinnerText {
-            color: #fff;
+        /* Texte sous le spinner (optionnel) */
+        .doc-spinner-text {
+            margin-top: 10px;
+            color: #fbbf24;
             font-weight: 600;
-            text-align: center;
+            text-shadow: 0 0 8px rgba(255, 200, 0, 0.4);
+        }
+
+        #docDownload,
+        #vidDownload {
+            display: none !important;
+        }
+
+        .modal-inner .flex.items-center.gap-2 button {
+            margin-right: 0 !important;
         }
     </style>
+
+
+    <!-- ===========================
+     META SEO PRINCIPALES
+=========================== -->
+    <title>Xassida Cloud — Bibliothèque numérique</title>
+    <meta name="description"
+        content="Xassida Cloud — partage de Xassidas, livres et vidéos. Lecture intégrée, visionnage intégré et téléchargement.">
+    <meta name="theme-color" content="#b45309">
+
+    <!-- ===========================
+     FAVICON & APP ICONS
+=========================== -->
+    <link rel="icon" href="https://www.xassidacloud.com/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://www.xassidacloud.com/logo.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- ===========================
+     OPEN GRAPH (Facebook, WhatsApp, etc.)
+=========================== -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Xassida Cloud">
+    <meta property="og:title" content="Xassida Cloud — Bibliothèque numérique">
+    <meta property="og:description"
+        content="Accédez aux Xassidas, livres et vidéos — lecture intégrée et visionnage intégré.">
+    <meta property="og:url" content="https://www.xassidacloud.com/">
+    <meta property="og:image" content="https://www.xassidacloud.com/logo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- ===========================
+     TWITTER CARDS
+=========================== -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Xassida Cloud — Bibliothèque numérique">
+    <meta name="twitter:description" content="Accédez aux Xassidas, livres et vidéos — lecture et visionnage intégrés.">
+    <meta name="twitter:image" content="https://www.xassidacloud.com/logo.png">
+
+
+    </script>
+
+
+
 </head>
 
 <!-- Splash Screen -->
@@ -1446,7 +1501,7 @@
         </section>
 
         <footer class="app-footer">
-            <p>© <span id="year"></span> Xassida Cloud — Développé par Mor Faye</p>
+            <p>© Novembre <span id="year"></span> - Xassida Cloud - Version 2.0</p>
             <p>
                 Contact :
                 <a href="mailto:xassidacloud@gmail.com" class="footer-mail">
@@ -1475,18 +1530,21 @@
                 </div>
             </div>
 
+            <div id="docLoader" class="fixed inset-0 flex items-center justify-center bg-black/50 z-50 hidden">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-amber-500"></div>
+            </div>
+
+
             <iframe id="docFrame" class="w-full h-full border-0" title="Lecteur document"></iframe>
 
             <!-- Spinner overlay : visible pendant le chargement -->
-            <div id="docSpinner" class="absolute inset-0 z-50 hidden items-center justify-center">
-                <div class="flex flex-col items-center gap-3 pointer-events-auto">
-                    <div class="sr-only" id="docSpinnerLabel">Chargement du document en cours</div>
-                    <div class="doc-spinner" role="status" aria-live="polite" aria-labelledby="docSpinnerLabel"
-                        aria-busy="true"></div>
-                    <!-- petit texte facultatif -->
-                    <div id="docSpinnerText" class="text-sm text-white mt-2">Chargement…</div>
-                </div>
+
+            <div id="docSpinner"
+                class="hidden flex flex-col items-center justify-center absolute inset-0 bg-black/40 backdrop-blur">
+                <div class="doc-spinner"></div>
+                <div class="doc-spinner-text">Chargement...</div>
             </div>
+
 
             <button id="docCloseBottom" class="modal-bottom-close" aria-label="Fermer la modale">✖</button>
 
@@ -4968,18 +5026,14 @@
         }
 
         // show/hide spinner
-        function showDocSpinner(text = 'Chargement…') {
-            if (!docSpinner) return;
-            if (docSpinner.classList.contains('hidden')) docSpinner.classList.remove('hidden');
-            docSpinnerText && (docSpinnerText.textContent = text);
-            docSpinner.style.display = 'flex';
+        function showDocSpinner() {
+            document.getElementById('docSpinner').classList.remove('hidden');
         }
 
         function hideDocSpinner() {
-            if (!docSpinner) return;
-            docSpinner.classList.add('hidden');
-            docSpinner.style.display = 'none';
+            document.getElementById('docSpinner').classList.add('hidden');
         }
+
 
         // Clean event listeners helper
         function cleanupDocFrameListeners(onLoad, onError) {
@@ -4992,74 +5046,63 @@
         // Nouvelle openDocModal — remplace l'ancienne
 
         function openDocModal(item) {
-            if (!docModal || !docFrame) return alert('Modal ou iframe manquant.');
+            docTitle.textContent = item.title || '';
+            docMeta.textContent = item.author || '';
 
-            // Titre & auteur
-            if (docTitle) docTitle.textContent = item.title || '';
-            if (docMeta) docMeta.textContent = item.author || '';
+            const previewUrl = toPreview(item.driveLink || "");
 
-            // Lien de prévisualisation
-            const previewUrl = toPreview(item.driveLink || '');
+            docModal.classList.remove("hidden");
+            docModal.classList.add("flex");
+            document.documentElement.style.overflow = "hidden";
 
-            // Affiche le modal + le spinner
-            docModal.classList.remove('hidden');
-            docModal.classList.add('flex');
-            document.documentElement.style.overflow = 'hidden';
-            showDocSpinner('Chargement du document…');
+            showDocSpinner();
 
-            let settled = false;
-            const MIN_VISIBLE_TIME = 20000; // le spinner reste au moins 1.5s
-            const startTime = Date.now();
+            // Reset ancien src
+            docFrame.src = "about:blank";
 
-            // Supprime anciens listeners avant d'en ajouter
-            docFrame.onload = null;
-            docFrame.onerror = null;
-
-            // Lorsqu’on pense que le document est chargé
-            docFrame.onload = () => {
-                if (settled) return;
-                settled = true;
-
-                const elapsed = Date.now() - startTime;
-                const remaining = Math.max(0, MIN_VISIBLE_TIME - elapsed);
-
-                // attend au moins 1.5s avant de cacher le spinner
-                setTimeout(() => {
-                    hideDocSpinner();
-                }, remaining);
-            };
-
-            // Si erreur → garde un peu le spinner, puis le cache
-            docFrame.onerror = () => {
-                if (settled) return;
-                settled = true;
-                setTimeout(() => {
-                    hideDocSpinner();
-                    alert('Impossible de charger le document.');
-                }, 1800);
-            };
-
-            // Forcer le rechargement (évite le cache de src)
-            docFrame.src = 'about:blank';
+            // On attend un peu pour éviter les faux 'load'
             setTimeout(() => {
                 docFrame.src = previewUrl;
-            }, 80);
+            }, 50);
 
-            // Sauvegarde l’état courant
-            docModal._current = item;
+            // Le spinner NE S’ARRÊTE PAS tant que ce test n’est pas OK
+            let checkInterval = setInterval(() => {
+                try {
+
+                    const doc = docFrame.contentDocument || docFrame.contentWindow.document;
+
+                    if (doc && doc.readyState === "complete") {
+                        hideDocSpinner();
+                        clearInterval(checkInterval);
+                    }
+                } catch (e) {
+                    // Pas grave, on attend encore
+                }
+            }, 300); // on vérifie toutes les 300ms
+
+            // Sécurité : max 12 sec
+            setTimeout(() => {
+                hideDocSpinner();
+                clearInterval(checkInterval);
+            }, 12000);
         }
+
+
 
 
         // Nouvelle closeDocModal — remplace l'ancienne
         function closeDocModal() {
-            if (!docModal || !docFrame) return;
-            docModal.classList.add('hidden'); docModal.classList.remove('flex');
-            // reset iframe src et spinner
-            try {docFrame.src = 'about:blank';} catch (e) { }
+            docModal.classList.add("hidden");
+            docModal.classList.remove("flex");
+
+            docFrame.src = "about:blank";
             hideDocSpinner();
+
             docModal._current = null;
-            document.documentElement.style.overflow = '';
+            document.documentElement.style.overflow = "";
         }
+
+
 
         // wire close buttons if not already wired
         if (docCloseTop) docCloseTop.addEventListener('click', closeDocModal);
@@ -5324,15 +5367,7 @@
         }));
     </script>
 
-    <script>
-        // Supprime le bouton X du haut dès que la modale s'ouvre
-        const observer = new MutationObserver(() => {
-            document.querySelectorAll('.modal-close, button[aria-label="Close"], button[title="Fermer"], button.close-modal')
-                .forEach(btn => btn.remove());
-        });
 
-        observer.observe(document.body, {childList: true, subtree: true});
-    </script>
 
 
 </body>
