@@ -4986,13 +4986,26 @@
         }
 
         // show/hide spinner
+        let lastShowTime = 0;
+
         function showDocSpinner() {
-            document.getElementById('docSpinner').classList.remove('hidden');
+            const s = document.getElementById('docSpinner');
+            lastShowTime = Date.now();
+            s.classList.remove('hidden');
         }
 
         function hideDocSpinner() {
-            document.getElementById('docSpinner').classList.add('hidden');
+            const s = document.getElementById('docSpinner');
+
+            const elapsed = Date.now() - lastShowTime;
+            const minTime = 3000; // 5 secondes (modifie ici)
+            const wait = Math.max(0, minTime - elapsed);
+
+            setTimeout(() => {
+                s.classList.add("hidden");
+            }, wait);
         }
+
 
 
         // Clean event listeners helper
