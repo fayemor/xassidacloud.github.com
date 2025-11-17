@@ -548,8 +548,7 @@
         /* === Espacement supérieur des pages de contenu === */
         #page-xassidas,
         #page-livres,
-        #page-videos,
-        #page-jangum {
+        #page-videos {
             margin-top: 2.5rem;
             /* ≈ 40px d’espace sous le header */
         }
@@ -558,8 +557,7 @@
 
             #page-xassidas,
             #page-livres,
-            #page-videos,
-            #page-jangum {
+            #page-videos {
                 margin-top: 1.5rem;
                 /* un peu moins sur mobile */
             }
@@ -1325,8 +1323,6 @@
                     class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Xassidas</button>
                 <button data-nav="livres" class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Livres</button>
                 <button data-nav="videos" class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Vidéos</button>
-                <button data-nav="jangum" class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Jangum Mag
-                    gni</button>
             </nav>
 
             <!-- Espace flexible -->
@@ -1367,8 +1363,6 @@
                     class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Xassidas</button>
                 <button data-nav="livres" class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Livres</button>
                 <button data-nav="videos" class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Vidéos</button>
-                <button data-nav="jangum" class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Jangum Mag
-                    gni</button>
             </div>
         </div>
     </header>
@@ -1465,27 +1459,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- JANGUM MAG GNI -->
-        <section id="page-jangum" class="page hidden py-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold">Jangum Mag gni</h2>
-                <button data-nav="home" class="px-3 py-1 rounded-md bg-white/6">Retour</button>
-            </div>
-            <h1>cette page est en cour de deploiment...</h1>
-
-            <div id="gridJangum" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite">
-            </div>
-
-            <div class="mt-6 flex items-center justify-between">
-                <div class="text-sm text-slate-400" id="jangumCount"></div>
-                <div class="flex gap-2">
-                    <button id="prevJ" class="px-3 py-1 rounded-md bg-white/6">Précédent</button>
-                    <button id="nextJ" class="px-3 py-1 rounded-md bg-white/6">Suivant</button>
-                </div>
-            </div>
-        </section>
-
 
         <footer class="app-footer">
             <p>© Novembre <span id="year"></span> - Xassida Cloud - Version 2.0</p>
@@ -4771,91 +4744,6 @@
 
 
 
-        const JANGUM = [
-            {
-                id: "j1",
-                title: "SERIGNE OMAR DIOUF",
-                speaker: "La Chaka",
-                link: "https://youtu.be/j05Miz4PS2E?si=jXK6qOBQPeJJlQh3/preview"
-            },
-
-            {
-                id: "j2",
-                title: "Jazbu",
-                speaker: "Serigne Ablaye Niang P1",
-                link: "https://youtu.be/BSwyp7Ep88g?si=lVHlL6T2gA-5uSmE/preview"
-            },
-
-            {
-                id: "j3",
-                title: "Jazbu",
-                speaker: "Serigne Ablaye Niang P2",
-                link: "https://youtu.be/iBloR-2Fbjk?si=S4qgvUDawiP3zX-c/preview"
-            },
-
-            {
-                id: "j4",
-                title: "Matlabul Fawzeyni",
-                speaker: "Serigne Bassirou Sene",
-                link: "https://youtu.be/avGGfrtKgy4?si=6qq-VaN7RKS_SQFX/preview"
-            },
-
-            {
-                id: "j5",
-                title: "Mixte Xassida",
-                speaker: "Serigne Ablaye Niang",
-                link: "https://youtu.be/YTkcH8nQRTk?si=bmq_vPIjUMN-ApJj/preview"
-            },
-
-            {
-                id: "j6",
-                title: "Matlabu Sifaa-i",
-                speaker: "Serigne Abdou Diouf",
-                link: "https://youtu.be/vybeEmRShak?si=f1koDag9lDqWrazk"
-            },
-
-            {
-                id: "j7",
-                title: "Jazbu feat",
-                speaker: "Serigne Ablaye Niang",
-                link: "https://youtu.be/gnpqqoe64KI?si=tPvsXxe3R-Ur6tzy/preview"
-            },
-
-            {
-                id: "j8",
-                title: "Assirou",
-                speaker: "Baye Khaly Seye",
-                link: "https://youtu.be/D9rZDT5eiak?si=KnJDwDXu7r__UX6X/preview"
-            },
-
-            {
-                id: "j9",
-                title: "Compil",
-                speaker: "Baye Cheikh Lo",
-                link: "https://youtu.be/LlpX-xqjamE?si=qLR9msr0KNPHST97/preview"
-            },
-
-            {
-                id: "j10",
-                title: "Moukhadimaat P1",
-                speaker: "Serigne Ablaye Niang",
-                link: "https://youtu.be/yvF7dbCi1kw?si=GQkrslfrfKHohTKn/preview"
-            },
-
-            {
-                id: "j11",
-                title: "Moukhadimaat P2",
-                speaker: "Serigne Ablaye Niang",
-                link: "https://youtu.be/KOIdXooyeII?si=QQ8KXHwWNH4D8KiP/preview"
-            }
-
-        ];
-
-
-
-
-
-
         // Trie les vidéos par ordre alphabétique du titre
         VIDEOS.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
 
@@ -4900,8 +4788,7 @@
             home: document.getElementById('page-home'),
             xassidas: document.getElementById('page-xassidas'),
             livres: document.getElementById('page-livres'),
-            videos: document.getElementById('page-videos'),
-            jangum: document.getElementById('page-jangum')
+            videos: document.getElementById('page-videos')
         };
         function showPage(name) {
             Object.entries(pages).forEach(([key, el]) => {
@@ -5011,11 +4898,6 @@
         const gridX = document.getElementById('gridXassida'), gridL = document.getElementById('gridLivres'), gridV = document.getElementById('gridVideos');
         const countX = document.getElementById('xassidaCount'), countL = document.getElementById('livresCount'), countV = document.getElementById('videosCount');
 
-        const gridJ = document.getElementById('gridJangum');
-        const countJ = document.getElementById('jangumCount');
-        let jPage = 1;
-
-
         function renderList(items, container, page, kind, countEl) {
             const total = items.length;
             const start = (page - 1) * pageSize;
@@ -5032,8 +4914,6 @@
         renderList(XASSIDAS, gridX, xPage, 'x', countX);
         renderList(LIVRES, gridL, lPage, 'l', countL);
         renderList(VIDEOS, gridV, vPage, 'v', countV);
-        renderList(JANGUM, gridJ, jPage, 'v', countJ);
-
 
         /* pagination buttons */
         document.getElementById('prevX').addEventListener('click', () => {if (xPage > 1) xPage--; renderList(XASSIDAS, gridX, xPage, 'x', countX);});
@@ -5042,16 +4922,6 @@
         document.getElementById('nextL').addEventListener('click', () => {lPage++; renderList(LIVRES, gridL, lPage, 'l', countL);});
         document.getElementById('prevV').addEventListener('click', () => {if (vPage > 1) vPage--; renderList(VIDEOS, gridV, vPage, 'v', countV);});
         document.getElementById('nextV').addEventListener('click', () => {vPage++; renderList(VIDEOS, gridV, vPage, 'v', countV);});
-
-        document.getElementById('prevJ').addEventListener('click', () => {
-            if (jPage > 1) jPage--;
-            renderList(JANGUM, gridJ, jPage, 'v', countJ);
-        });
-
-        document.getElementById('nextJ').addEventListener('click', () => {
-            jPage++;
-            renderList(JANGUM, gridJ, jPage, 'v', countJ);
-        });
 
         /* search */
         const globalSearch = document.getElementById('globalSearch'), btnSearch = document.getElementById('btnSearch');
@@ -5116,26 +4986,13 @@
         }
 
         // show/hide spinner
-        let lastShowTime = 0;
-
         function showDocSpinner() {
-            const s = document.getElementById('docSpinner');
-            lastShowTime = Date.now();
-            s.classList.remove('hidden');
+            document.getElementById('docSpinner').classList.remove('hidden');
         }
 
         function hideDocSpinner() {
-            const s = document.getElementById('docSpinner');
-
-            const elapsed = Date.now() - lastShowTime;
-            const minTime = 3000; // 5 secondes (modifie ici)
-            const wait = Math.max(0, minTime - elapsed);
-
-            setTimeout(() => {
-                s.classList.add("hidden");
-            }, wait);
+            document.getElementById('docSpinner').classList.add('hidden');
         }
-
 
 
         // Clean event listeners helper
