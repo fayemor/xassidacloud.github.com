@@ -145,7 +145,7 @@
 </head>
 
 <body
-    class="bg-dark-bg text-slate-200 antialiased selection:bg-brand-500 selection:text-white transition-colors duration-300 pb-24 md:pb-10">
+    class="bg-dark-bg text-slate-200 antialiased selection:bg-brand-500 selection:text-white transition-colors duration-300 pb-24 md:pb-0">
 
     <!-- Splash Screen -->
     <div id="splashScreen"
@@ -242,16 +242,20 @@
         <section id="page-home" class="page-section space-y-8">
             <!-- Hero Banner -->
             <div
-                class="relative rounded-3xl overflow-hidden glass min-h-[300px] flex items-center justify-center text-center px-4">
+                class="relative rounded-3xl overflow-hidden glass min-h-[300px] flex items-center justify-center text-center px-4 py-24">
                 <div
                     class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1594895697624-9426ba292a47?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-overlay">
                 </div>
                 <div class="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-dark-bg/50"></div>
 
-                <div class="relative z-10 max-w-2xl mx-auto space-y-6 animate-slide-up">
-                    <span
-                        class="inline-block px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold tracking-wider uppercase mb-2">Bibliothèque
-                        Universelle</span>
+                <div class="relative z-10 max-w-2xl mx-auto space-y-8 animate-slide-up">
+                    <div class="mt-4">
+                        <span
+                            class="inline-block px-4 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold tracking-wider uppercase mb-4">
+                            Bibliothèque Universelle
+                        </span>
+                    </div>
+
                     <h1 class="text-4xl md:text-6xl font-serif font-bold text-white leading-tight">
                         Explorez l'univers <br> <span
                             class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Xassida
@@ -260,7 +264,7 @@
                     <p class="text-slate-300 text-lg md:text-xl font-light">
                         Accédez aux écrits de Cheikh Ahmadou Bamba, aux livres et aux vidéos de la communauté Mouride.
                     </p>
-                    <div class="flex flex-wrap justify-center gap-3 pt-4">
+                    <div class="flex flex-wrap justify-center gap-3 pt-6 pb-6">
                         <button onclick="app.router('xassidas')"
                             class="px-6 py-3 rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold transition-all hover:scale-105 shadow-lg shadow-brand-600/20">
                             Lire un Xassida
@@ -344,6 +348,30 @@
         </section>
 
     </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 bg-slate-900/50 mt-12 pb-24 md:pb-12 pt-12">
+        <div
+            class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-center md:justify-start gap-3">
+
+                </div>
+
+            </div>
+
+            <div class="flex flex-col items-center md:items-end gap-1">
+                <p class="text-sm text-slate-400">Nous contacter</p>
+                <a href="mailto:xassidacloud@gmail.com"
+                    class="text-brand-400 hover:text-brand-300 transition-colors font-medium">
+                    xassidacloud@gmail.com
+                </a>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 mt-8 pt-8 border-t border-white/5 text-center text-xs text-slate-500">
+            &copy; Decembre 2025 - Xassida Cloud - version 2.0. Tous droits réservés.
+        </div>
+    </footer>
 
     <!-- Mobile Bottom Navigation (App Style) -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-white/10 z-50 pb-safe">
@@ -2866,17 +2894,20 @@
         const LIVRES = [
             {
                 id: 'l1',
-                title: 'Alxuraan en Wolof', author: 'ALLAH (SWT)', driveLink: 'https://drive.google.com/file/d/1V8S93byxBrqcwSBpo41emWUP3MNY78Da/view?usp=drive_link'
+                title: 'Alxuraan en Wolof', author: 'ALLAH (SWT)', driveLink:
+                    'https://drive.google.com/file/d/1V8S93byxBrqcwSBpo41emWUP3MNY78Da/view?usp=drive_link'
             },
             {
                 id: 'l2',
                 title: 'Cheikh Ibra Fall',
-                author: 'Sheikh Alassane Sène', driveLink: 'https://drive.google.com/file/d/1DMmk5X6Gpyf8QiwP20bO5IBqrtDG8cBC/view?usp=drive_link'
+                author: 'Sheikh Alassane Sène', driveLink:
+                    'https://drive.google.com/file/d/1DMmk5X6Gpyf8QiwP20bO5IBqrtDG8cBC/view?usp=drive_link'
             },
             {
                 id: 'l3',
                 title: 'Xuratul Ayni',
-                author: 'Serigne Chouhaybou MBACKE', driveLink: 'https://drive.google.com/file/d/1E4Orppn8JrgdTAzS3FvTx9QUjkoEHrz6/view?usp=drive_link'
+                author: 'Serigne Chouhaybou MBACKE', driveLink:
+                    'https://drive.google.com/file/d/1E4Orppn8JrgdTAzS3FvTx9QUjkoEHrz6/view?usp=drive_link'
             },
             {
                 id: 'l4',
@@ -3615,6 +3646,7 @@
             }
 
         ];
+
         // --- APP LOGIC ---
 
         const app = {
