@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <link rel="icon" href="xc.png" />
+    <link rel="icon" href="logo.png" />
 
     <!-- Fonts: Inter (Interface) & Merriweather (Titres élégants) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -133,7 +133,13 @@
             background-image: radial-gradient(#f59e0b 0.5px, transparent 0.5px);
             background-size: 24px 24px;
             opacity: 0.03;
-            /* Très subtil */
+        }
+
+        /* Utility pour images */
+        .img-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -144,12 +150,12 @@
     <!-- Splash Screen -->
     <div id="splashScreen"
         class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-dark-bg text-white transition-opacity duration-700">
-        <div class="relative flex flex-col items-center">
-            <!-- Logo placeholder ou image -->
-            <div
-                class="w-24 h-24 mb-6 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-2xl shadow-brand-500/20">
-                <span class="text-4xl font-serif font-bold text-white">XC</span>
-            </div>
+        <div class="relative flex flex-col items-center animate-slide-up">
+            <!-- LOGO SPLASH SCREEN -->
+            <img src="logo.png" onerror="this.src='https://placehold.co/150x150/f59e0b/white?text=XC'"
+                alt="Xassida Cloud Logo"
+                class="w-32 h-32 mb-6 rounded-2xl object-cover shadow-2xl shadow-brand-500/20 border border-white/10">
+
             <h1 class="text-3xl font-serif font-bold text-brand-400 tracking-tight">Xassida Cloud</h1>
             <p class="mt-2 text-slate-400 text-sm tracking-widest uppercase">Bibliothèque Numérique</p>
             <div class="mt-8 spinner"></div>
@@ -168,14 +174,14 @@
         <div class="glass border-b border-white/5">
             <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
 
-                <!-- Logo -->
+                <!-- Logo Header -->
                 <div class="flex items-center gap-3 cursor-pointer" onclick="app.router('home')">
-                    <div
-                        class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center text-white font-bold font-serif text-sm">
-                        XC
-                    </div>
+                    <!-- LOGO MENU -->
+                    <img src="logo.png" onerror="this.style.display='none'" alt="XC"
+                        class="w-10 h-10 rounded-lg object-contain bg-slate-800/50 p-1 border border-white/5">
+                    <!-- Fallback texte si logo pas chargé ou pour accompagner -->
                     <div class="hidden sm:block">
-                        <h1 class="font-bold text-slate-100 leading-none">Xassida Cloud</h1>
+                        <h1 class="font-bold text-slate-100 leading-none text-lg">Xassida Cloud</h1>
                     </div>
                 </div>
 
@@ -438,8 +444,7 @@
 
     <!-- Script Application -->
     <script>
-        // --- DONNÉES (Les immenses tableaux fournis par l'utilisateur) ---
-        // Je les place ici pour ne pas alourdir la lecture, mais ils sont essentiels.
+        // --- DONNÉES SIMULÉES (Pour l'exemple) ---
 
         const XASSIDAS = [
             {
@@ -3610,7 +3615,6 @@
             }
 
         ];
-
         // --- APP LOGIC ---
 
         const app = {
@@ -3666,10 +3670,10 @@
                 document.getElementById('btnPrev').onclick = () => this.changePage(-1);
                 document.getElementById('btnNext').onclick = () => this.changePage(1);
 
-                // Init items sort (Copied from original)
-                XASSIDAS.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
-                LIVRES.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
-                VIDEOS.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
+                // Init items sort
+                if (XASSIDAS.length) XASSIDAS.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
+                if (LIVRES.length) LIVRES.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
+                if (VIDEOS.length) VIDEOS.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
             },
 
             setTheme(theme) {
@@ -3736,6 +3740,16 @@
                 return data;
             },
 
+            // Helper pour obtenir la miniature YouTube
+            getYoutubeThumbnail(url) {
+                if (!url) return null;
+                const match = url.match(/(?:v=|\/embed\/|youtu\.be\/)([^"&?\/\s]+)/);
+                if (match && match[1]) {
+                    return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`;
+                }
+                return null;
+            },
+
             renderPage(type) {
                 const titles = {
                     'xassidas': {t: 'Xassidas', s: 'Les écrits de Cheikh Ahmadou Bamba'},
@@ -3776,11 +3790,31 @@
                     const initials = title.substring(0, 2).toUpperCase();
                     const sub = item.author || item.speaker || "";
 
+                    // Gestion de l'aperçu vidéo (Thumbnail)
+                    let visualContent = '';
+                    if (type === 'videos') {
+                        const thumb = this.getYoutubeThumbnail(item.link);
+                        if (thumb) {
+                            visualContent = `
+                                <img src="${thumb}" alt="${title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                                        <svg class="w-5 h-5 text-white fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            visualContent = `<span class="z-10">${initials}</span><div class="absolute inset-0 bg-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>`;
+                        }
+                    } else {
+                        // Par défaut pour livres/xassidas
+                        visualContent = `<span class="z-10">${initials}</span><div class="absolute inset-0 bg-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>`;
+                    }
+
                     // Card Content
                     card.innerHTML = `
                         <div class="h-32 mb-4 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/5 flex items-center justify-center text-2xl font-bold text-brand-500 font-serif relative overflow-hidden group-hover:scale-[1.02] transition-transform">
-                            <span class="z-10">${initials}</span>
-                            <div class="absolute inset-0 bg-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            ${visualContent}
                         </div>
                         <h4 class="font-bold text-slate-200 line-clamp-2 mb-1 flex-1">${title}</h4>
                         <p class="text-xs text-slate-400 mb-4 line-clamp-1">${sub}</p>
