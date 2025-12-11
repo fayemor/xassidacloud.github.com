@@ -1,1338 +1,446 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" class="scroll-smooth">
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Xassida Cloud — Bibliothèque numérique</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Xassida Cloud — Bibliothèque Numérique</title>
     <meta name="description"
         content="Xassida Cloud — partage de Xassidas, livres et vidéos. Lecture intégrée et téléchargement." />
-    <meta property="og:title" content="Xassida Cloud — Bibliothèque numérique" />
-    <meta property="og:description"
-        content="Accédez aux Xassidas, livres et vidéos — lecture intégrée et téléchargement." />
-    <meta name="author" content="Mor Faye" />
-    <meta name="theme-color" content="#b45309" />
+    <meta name="theme-color" content="#0f172a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <link rel="icon" href="xc.png" />
 
-    <!-- Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Fonts: Inter (Interface) & Merriweather (Titres élégants) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;700&display=swap"
+        rel="stylesheet">
 
-    <!-- Tailwind CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {sans: ['Inter', 'ui-sans-serif', 'system-ui']},
-                    colors: {primary: {600: '#ea580c'}}
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            400: '#fbbf24',
+                            500: '#f59e0b', // Amber principal
+                            600: '#d97706',
+                            900: '#78350f',
+                        },
+                        dark: {
+                            bg: '#020617', // Midnight darker
+                            card: '#0f172a',
+                            surface: '#1e293b'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': {opacity: '0'},
+                            '100%': {opacity: '1'},
+                        },
+                        slideUp: {
+                            '0%': {transform: 'translateY(20px)', opacity: '0'},
+                            '100%': {transform: 'translateY(0)', opacity: '1'},
+                        }
+                    }
                 }
             }
         }
     </script>
 
     <style>
+        /* Styles globaux et utilitaires */
         :root {
-            --accent: #ea580c;
-            --bg-dark-1: #020617;
-            --bg-dark-2: #071225;
-            --card-bg: rgba(255, 255, 255, 0.04);
-            --glass: rgba(255, 255, 255, 0.04);
-            --text-light: #e8eef7;
-            --text-dark: #0b1220;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(15, 23, 42, 0.7);
         }
 
-        html,
-        body {
-            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-            color: #e6eef8;
-            background: #0b1120;
-            /* 🔸 fond sombre uniforme, sans bande */
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-
+        html.light {
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.85);
         }
-
 
         body {
-            color: var(--text-light);
-            background:
-                radial-gradient(1200px 600px at 10% 10%, rgba(234, 88, 12, 0.02), transparent 10%),
-                linear-gradient(180deg, var(--bg-dark-1) 0%, var(--bg-dark-2) 100%);
-            background-attachment: fixed;
-            padding-bottom: 40px;
-
+            -webkit-tap-highlight-color: transparent;
+            background-color: var(--bg-color);
         }
 
-        /* dark golden Islamic motif */
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: -40;
-            pointer-events: none;
-            background-image:
-                url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><defs><pattern id='p' width='120' height='120' patternUnits='userSpaceOnUse'><path d='M60 0 L120 30 L60 60 L0 30 Z' fill='%23d4af37' fill-opacity='0.06'/><path d='M0 60 L60 90 L0 120 L-60 90 Z' fill='%23d4af37' fill-opacity='0.03'/></pattern></defs><rect width='100%' height='100%' fill='url(%23p)'/></svg>");
-            background-repeat: repeat;
-            background-size: 240px 240px;
-            animation: pan 28s linear infinite;
-            mix-blend-mode: overlay;
-            opacity: 0.9;
-            filter: blur(.6px) saturate(110%);
+        /* Scrollbar masquée pour une UI plus propre */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
 
-        @keyframes pan {
-            from {
-                background-position: 0 0
-            }
-
-            to {
-                background-position: 800px 400px
-            }
-        }
-
-        /* Header */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 60;
-            backdrop-filter: blur(8px);
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.48), rgba(0, 0, 0, 0.18));
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04)
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px
-        }
-
-        /* hero */
-        .hero-photo {
-            background-image: url('xf.jpg');
-            background-size: cover;
-            background-position: center;
-            min-height: 280px;
-            position: relative;
-            margin-top: 1.5rem;
-            /* ✅ descend légèrement le bloc (~24px) */
-            border-radius: 1rem;
-            /* pour garder la douceur */
-        }
-
-
-        /* glass cards */
-        .glass {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 12px
-        }
-
-        /* modal */
-        .modal-inner {
-            padding-top: 18px
-        }
-
-        /* ~5mm offset */
-        .modal-close {
+        ::-webkit-scrollbar-track {
             background: transparent;
-            border: 0;
-            font-size: 20px;
-            padding: 6px 9px;
-            border-radius: 8px;
-            cursor: pointer;
-            color: inherit
         }
 
-        .modal-bottom-close {
-            position: absolute;
-            right: 14px;
-            bottom: 14px;
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            border: 0;
-            padding: 8px 10px;
-            border-radius: 8px;
-            cursor: pointer
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
         }
 
-        .modal-bottom-close.light {
-            background: rgba(0, 0, 0, 0.08);
-            color: var(--text-dark);
-            border: 1px solid rgba(0, 0, 0, 0.06);
+        /* Glassmorphism */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
         }
 
-        /* search sizing to avoid overlap */
-        #searchWrap {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 0
+        /* Loader animé */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(245, 158, 11, 0.3);
+            border-radius: 50%;
+            border-top-color: #f59e0b;
+            animation: spin 1s ease-in-out infinite;
         }
 
-        #globalSearch {
-            min-width: 90px;
-            width: 220px;
-            max-width: 420px;
-            transition: width .18s ease
-        }
-
-        @media (max-width:640px) {
-            #globalSearch {
-                width: calc(100vw - 150px);
-                max-width: 260px
-            }
-        }
-
-        /* light mode */
-        .light body {
-            background: linear-gradient(180deg, #ffffff 0%, #f7f7f8 100%);
-            color: var(--text-dark)
-        }
-
-        /* Text color in cards for light mode */
-        .light .glass h3,
-        .light .glass p {
-            color: #b45309 !important;
-            /* orange foncé */
-        }
-
-
-        .light .glass p {
-            color: var(--text-dark) !important;
-        }
-
-        .light .glass h3 {
-            color: #b45309 !important;
-        }
-
-
-        .light header {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.98));
-            border-bottom: 1px solid rgba(16, 24, 32, 0.05)
-        }
-
-        .light .glass {
-            background: rgba(16, 24, 32, 0.03);
-            border: 1px solid rgba(16, 24, 32, 0.04);
-            color: var(--text-dark)
-        }
-
-        .light .modal-bottom-close {
-            background: rgba(255, 255, 255, 0.9);
-            color: var(--text-dark);
-            border: 1px solid rgba(0, 0, 0, 0.06)
-        }
-
-        /* === Personnalisation du header en mode clair === */
-        .light header .text-amber-400 {
-            color: #b45309 !important;
-            /* orange foncé pour "Xassida Cloud" */
-        }
-
-        .light header .text-slate-300 {
-            color: #000000 !important;
-            /* noir pour "Bibliothèque numérique" */
-        }
-
-
-
-        .light #globalSearch {
-            color: #000000;
-            /* texte en noir */
-            background-color: #ffffff;
-            /* fond blanc */
-            border: 1px solid #b45309;
-            /* contour orange foncé */
-        }
-
-        .light #globalSearch::placeholder {
-            color: #000000;
-            /* gris moyen pour le placeholder */
-        }
-
-        .light #themeToggle,
-        .light #mobileMenuBtn {
-            background-color: #e5e7eb !important;
-            /* fond gris clair */
-            color: #000000;
-            /* icône sombre */
-        }
-
-
-        /* Animated welcome text */
-        .pulse-amber {
-            animation: pulse 3s infinite;
-            color: var(--accent)
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: translateY(0)
-            }
-
-            50% {
-                transform: translateY(-6px)
-            }
-        }
-
-        /* ensure mobile menu button visible */
-        #mobileMenuBtn {
-            display: block
-        }
-
-        /* extended desktop menu */
-        @media(min-width:900px) {
-            nav.desktop-nav {
-                display: flex;
-                gap: 12px;
-                align-items: center
-            }
-
-            nav.desktop-nav .nav-btn {
-                padding: 8px 12px;
-                font-weight: 600
-            }
-        }
-
-        /* ---------- THEME: styles clairs et sombres appliqués sur <html> ---------- */
-        /* Light mode (texte orange foncé, bibliotheque en noir, search texte noir) */
-        html.light body {
-            background: linear-gradient(180deg, #ffffff 0%, #f7f7f8 100%);
-            color: var(--text-dark);
-        }
-
-        html.light header .text-amber-400,
-        html.light .text-amber-400 {
-            /* titre */
-            color: #b45309 !important;
-            /* orange foncé */
-        }
-
-        html.light header .text-slate-300,
-        html.light .text-slate-300 {
-            /* sous-titre */
-            color: #000000 !important;
-        }
-
-        /* Search input in light mode */
-        html.light #globalSearch {
-            color: #000000 !important;
-            /* texte saisi en noir */
-            background-color: #ffffff !important;
-            /* fond blanc */
-            border: 1px solid #b45309 !important;
-            /* contour orange foncé */
-        }
-
-        html.light #globalSearch::placeholder {
-            color: #9ca3af !important;
-        }
-
-        /* Buttons (theme/menu) background in light mode */
-        html.light #themeToggle,
-        html.light #mobileMenuBtn {
-            background-color: #e5e7eb !important;
-            /* gris clair */
-            color: #000 !important;
-        }
-
-        /* Dark mode: force text in search to black as requested, with light input background for readability */
-        html.dark #globalSearch {
-            color: #000000 !important;
-            /* texte saisi en noir */
-            background-color: #f5f5f5 !important;
-            /* fond gris clair pour lisibilité sur sombre */
-            border: 1px solid #b45309 !important;
-        }
-
-        html.dark #globalSearch::placeholder {
-            color: #555555 !important;
-        }
-
-        /* Also ensure cards text color in light mode becomes orange-donk */
-        html.light .glass h3,
-        html.light .glass p {
-            color: #b45309 !important;
-        }
-
-        /* =============================
-   Boutons "Lire" & "Télécharger"
-   ============================= */
-
-        /* Mode clair */
-        html.light .btn-read {
-            background-color: #b45309 !important;
-            /* orange foncé */
-            color: #ffffff !important;
-            transition: background 0.2s;
-        }
-
-        html.light .btn-read:hover {
-            background-color: #92400e !important;
-        }
-
-        html.light .btn-dl {
-            background-color: #e5e7eb !important;
-            /* gris clair */
-            color: #000000 !important;
-            transition: background 0.2s;
-        }
-
-        html.light .btn-dl:hover {
-            background-color: #d1d5db !important;
-        }
-
-        /* Mode sombre */
-        html.dark .btn-read {
-            background-color: #ea580c !important;
-            /* orange vif */
-            color: #000000 !important;
-            transition: background 0.2s;
-        }
-
-        html.dark .btn-read:hover {
-            background-color: #fb923c !important;
-        }
-
-        html.dark .btn-dl {
-            background-color: #334155 !important;
-            /* gris bleu foncé */
-            color: #f8fafc !important;
-            transition: background 0.2s;
-        }
-
-        html.dark .btn-dl:hover {
-            background-color: #475569 !important;
-        }
-
-        /* === Boutons Lire et Télécharger — visibles dans les deux modes === */
-
-        /* style commun */
-        .btn-read,
-        .btn-dl {
-            border-radius: 9999px !important;
-            /* super arrondi type "pill button" */
-            font-weight: 600;
-            padding: 8px 18px;
-            transition: all 0.25s ease-in-out;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-        }
-
-
-        /* ----- MODE CLAIR ----- */
-        html.light .btn-read {
-            background-color: #b45309 !important;
-            /* orange foncé */
-            color: #ffffff !important;
-            border: 1px solid #92400e !important;
-        }
-
-        html.light .btn-read:hover {
-            background-color: #92400e !important;
-        }
-
-        html.light .btn-dl {
-            background-color: #e5e7eb !important;
-            /* gris clair */
-            color: #000000 !important;
-            border: 1px solid #d1d5db !important;
-        }
-
-        html.light .btn-dl:hover {
-            background-color: #d1d5db !important;
-        }
-
-        /* ----- MODE SOMBRE ----- */
-        html.dark .btn-read {
-            background-color: #ea580c !important;
-            /* orange vif */
-            color: #000000 !important;
-            border: 1px solid #fb923c !important;
-        }
-
-        html.dark .btn-read:hover {
-            background-color: #fb923c !important;
-        }
-
-        html.dark .btn-dl {
-            background-color: #1e293b !important;
-            /* gris bleu foncé */
-            color: #ffffff !important;
-            border: 1px solid #334155 !important;
-        }
-
-        html.dark .btn-dl:hover {
-            background-color: #334155 !important;
-        }
-
-        /* === Boutons Lire et Télécharger — double compatibilité === */
-
-        .btn-read,
-        .btn-dl {
-            border-radius: 6px;
-            font-weight: 600;
-            padding: 6px 14px;
-            transition: all 0.25s ease-in-out;
-        }
-
-        /* ------------------ MODE CLAIR ------------------ */
-        html.light .btn-read,
-        body:not(.dark) .btn-read {
-            background-color: #b45309 !important;
-            /* orange foncé */
-            color: #ffffff !important;
-            border: 1px solid #92400e !important;
-        }
-
-        html.light .btn-read:hover,
-        body:not(.dark) .btn-read:hover {
-            background-color: #92400e !important;
-        }
-
-        html.light .btn-dl,
-        body:not(.dark) .btn-dl {
-            background-color: #e5e7eb !important;
-            /* gris clair */
-            color: #000000 !important;
-            border: 1px solid #d1d5db !important;
-        }
-
-        html.light .btn-dl:hover,
-        body:not(.dark) .btn-dl:hover {
-            background-color: #d1d5db !important;
-        }
-
-        /* ------------------ MODE SOMBRE ------------------ */
-        html.dark .btn-read,
-        body.dark .btn-read {
-            background-color: #ea580c !important;
-            /* orange vif */
-            color: #000000 !important;
-            border: 1px solid #fb923c !important;
-        }
-
-        html.dark .btn-read:hover,
-        body.dark .btn-read:hover {
-            background-color: #fb923c !important;
-        }
-
-        html.dark .btn-dl,
-        body.dark .btn-dl {
-            background-color: #78350f !important;
-            /* gris bleu foncé */
-            color: #ffffff !important;
-            border: 1px solid #334155 !important;
-        }
-
-        html.dark .btn-dl:hover,
-        body.dark .btn-dl:hover {
-            background-color: #334155 !important;
-        }
-
-        /* === Espacement supérieur des pages de contenu === */
-        #page-xassidas,
-        #page-livres,
-        #page-videos {
-            margin-top: 2.5rem;
-            /* ≈ 40px d’espace sous le header */
-        }
-
-        @media (max-width: 640px) {
-
-            #page-xassidas,
-            #page-livres,
-            #page-videos {
-                margin-top: 1.5rem;
-                /* un peu moins sur mobile */
-            }
-        }
-
-        /* === Transition douce entre mode clair et sombre === */
-        html,
-        body,
-        header,
-        main,
-        .glass,
-        .btn-read,
-        .btn-dl {
-            transition: background-color 1s ease, color 1s ease, border-color 1s ease, box-shadow 0.8s ease;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: url('motif-islamic.png') repeat center;
-            background-size: 500px;
-            opacity: 0.04;
-            animation: shimmer 20s linear infinite;
-            z-index: -10;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 0 0;
-            }
-
-            100% {
-                background-position: 500px 500px;
-            }
-        }
-
-        @media (max-width: 640px) {
-
-            h1,
-            h2,
-            h3 {
-                line-height: 1.3;
-            }
-
-            .btn-read,
-            .btn-dl {
-                padding: 10px 16px;
-                font-size: 0.95rem;
-            }
-
-            #globalSearch {
-                font-size: 0.9rem;
-            }
-
-            .btn-read:active,
-            .btn-dl:active {
-                transform: scale(0.96);
-            }
-
-            button,
-            .nav-btn {
-                cursor: pointer;
-            }
-
-
-
-        }
-
-        /* 🔶 Style du bouton "Regarder" */
-
-        /* 🔶 Bouton "Regarder" — version forcée et ultra-arrondie */
-        .btn-watch {
-            background-color: #ea580c !important;
-            /* orange foncé */
-            color: #000 !important;
-            /* texte noir */
-            border-radius: 9999px !important;
-            /* arrondi maximal */
-            padding: 10px 20px !important;
-            /* un peu plus large */
-            font-weight: 600 !important;
-            transition: all 0.3s ease !important;
-        }
-
-        /* 🌙 Mode sombre */
-        .dark .btn-watch {
-            background-color: #f59e0b !important;
-            /* doré plus doux */
-            color: #fff !important;
-        }
-
-        /* ✨ Effet au survol */
-        .btn-watch:hover {
-            opacity: 0.9 !important;
-            transform: scale(1.05) !important;
-        }
-
-        @media (max-width: 640px) {
-            header .max-w-6xl {
-                flex-direction: row;
-                align-items: flex-start;
-            }
-
-            #searchWrap {
-                width: 100%;
-                order: 3;
-                /* la recherche passe sous le logo */
-                margin-top: 0.5rem;
-            }
-
-            #btnSearch {
-                flex: 1;
-            }
-
-            #mobileMenuBtn,
-            #themeToggle {
-                flex-shrink: 0;
-            }
-        }
-
-        @media (max-width: 640px) {
-            #page-home {
-                margin-top: 5.5rem !important;
-                /* décale la section d’accueil sous le header */
-            }
-        }
-
-        /* 📱 Ajustement des boutons sur mobile */
-        @media (max-width: 640px) {
-
-            .btn-read,
-            .btn-dl,
-            .btn-watch {
-                font-size: 0.78rem !important;
-                /* 🔹 réduit légèrement le texte */
-                padding: 6px 10px !important;
-                /* 🔹 moins large */
-                border-radius: 10px !important;
-                /* 🔹 toujours arrondi */
-            }
-        }
-
-        /* 💻 Cache le bouton menu sur desktop (fonctionne à coup sûr) */
-        @media (min-width: 768px) {
-            #mobileMenuBtn {
-                display: none !important;
-            }
-        }
-
-        /* 📱 Amélioration du rendu mobile */
-        @media (max-width: 640px) {
-
-            /* 2 colonnes sur mobile */
-            #gridXassida,
-            #gridLivres,
-            #gridVideos {
-                display: grid;
-                grid-template-columns: 1fr;
-                /* 🔹 deux colonnes fixes */
-                gap: 0.8rem;
-                /* 🔹 espace réduit */
-                padding: 0 0.4rem;
-                /* 🔹 léger padding latéral */
-            }
-
-            /* 🔸 Boutons plus petits et compacts */
-            .btn-read,
-            .btn-dl,
-            .btn-watch {
-                font-size: 0.72rem !important;
-                /* 🔹 police réduite */
-                padding: 4px 8px !important;
-                /* 🔹 padding minimal */
-                border-radius: 6px !important;
-                /* 🔹 coins doux */
-                font-weight: 600 !important;
-                line-height: 1 !important;
-            }
-
-            /* Évite que les boutons se serrent trop */
-            .flex.gap-2 {
-                gap: 0.4rem !important;
-            }
-
-            section.page {
-                margin-top: 0.5rem !important;
-                margin-bottom: 0.5rem !important;
-                padding-top: 0.5rem !important;
-                padding-bottom: 0.5rem !important;
-                padding-left: 0.4rem !important;
-                /* 🔹 marge uniforme */
-                padding-right: 0.4rem !important;
-                /* 🔹 marge uniforme */
-            }
-        }
-
-        /* === ✅ Taille des boutons ajustée === */
-
-        /* ✅ Style uniforme pour tous les boutons (Lire, Télécharger, Regarder) */
-        .btn-read,
-        .btn-dl,
-        .btn-watch {
-            background-color: #b45309 !important;
-            /* orange foncé */
-            color: #ffffff !important;
-            /* texte blanc */
-            border: 1px solid #92400e !important;
-            /* contour assorti */
-            border-radius: 9999px !important;
-            padding: 6px 18px !important;
-            font-weight: 600;
-            transition: all 0.25s ease-in-out;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-        }
-
-        /* 🔸 Mode clair — cohérence visuelle */
-        html.light .btn-read,
-        html.light .btn-watch {
-            background-color: #b45309 !important;
-            /* orange foncé */
-            color: #ffffff !important;
-            border: 1px solid #92400e !important;
-        }
-
-        html.light .btn-read:hover,
-        html.light .btn-watch:hover {
-            background-color: #92400e !important;
-        }
-
-        html.light .btn-dl {
-            background-color: #e5e7eb !important;
-            /* gris clair */
-            color: #000000 !important;
-            border: 1px solid #d1d5db !important;
-        }
-
-        html.light .btn-dl:hover {
-            background-color: #d1d5db !important;
-        }
-
-        /* 🌙 Mode sombre — même look */
-        html.dark .btn-read,
-        html.dark .btn-watch {
-            background-color: #ea580c !important;
-            /* orange vif */
-            color: #000000 !important;
-            border: 1px solid #fb923c !important;
-        }
-
-        html.dark .btn-read:hover,
-        html.dark .btn-watch:hover {
-            background-color: #c05e0e !important;
-        }
-
-        html.dark .btn-dl {
-            background-color: #1e293b !important;
-            /* gris bleu foncé */
-            color: #ffffff !important;
-            border: 1px solid #334155 !important;
-        }
-
-        html.dark .btn-dl:hover {
-            background-color: #334155 !important;
-        }
-
-        /* 📱 Version mobile : un peu plus compacte */
-        @media (max-width: 640px) {
-
-            .btn-read,
-            .btn-dl,
-            .btn-watch {
-                padding: 5px 14px !important;
-                font-size: 0.85rem !important;
-            }
-
-            footer {
-                text-align: center;
-            }
-        }
-
-
-        footer {
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 22px;
-            /* ← Épaisseur encore plus fine */
-            background: rgba(10, 15, 30, 0.92);
-            color: #cbd5e1;
-            font-size: 0.2rem;
-            /* police légèrement plus petite */
-            text-align: center;
-            display: flex;
-            border-radius: 10px;
-            align-items: center;
-            justify-content: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            z-index: 100;
-            backdrop-filter: blur(5px);
-        }
-
-        footer p {
-            margin: 0;
-            padding: 0;
-            line-height: 0.2;
-        }
-
-        /* Mode clair */
-        html.light footer {
-            background: rgba(255, 255, 255, 0.9);
-            color: #0f172a;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        /* === Splash Screen avec effet ZOOM + écriture === */
-        #splashScreen {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at center, #b45309 15%, #0b1120 80%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            animation: fadeOut 1s ease forwards;
-            animation-delay: 3.6s;
-            /* attend la fin de l’animation avant disparition */
-        }
-
-        .splash-logo {
-            width: 300px;
-            height: 300px;
-            object-fit: contain;
-            opacity: 0;
-            transform: scale(0.7);
-            animation: zoomIn 2s ease forwards;
-        }
-
-        /* Texte typewriter */
-        .splash-text {
-            margin-top: 1.2rem;
-            font-size: 1.9rem;
-            color: #fff;
-            font-weight: 700;
-            letter-spacing: 1px;
-            white-space: nowrap;
-            overflow: hidden;
-            border-right: 2px solid #fff;
-            /* curseur */
-            width: 0;
-            opacity: 0;
-            animation: typing 2s steps(14, end) forwards 1.4s, blink 0.7s step-end infinite 3.4s;
-        }
-
-        /* === Animations === */
-        @keyframes zoomIn {
-            0% {
-                transform: scale(0.7);
-                opacity: 0;
-            }
-
-            60% {
-                transform: scale(1.05);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        @keyframes typing {
-            from {
-                width: 0;
-                opacity: 1;
-            }
-
+        @keyframes spin {
             to {
-                width: 13ch;
-                /* nombre de caractères de "Xassida Cloud" */
-                opacity: 1;
+                transform: rotate(360deg);
             }
         }
 
-        @keyframes blink {
-            50% {
-                border-color: transparent;
-            }
-        }
-
-        @keyframes fadeOut {
-            to {
-                opacity: 0;
-                visibility: hidden;
-            }
-        }
-
-        #splashScreen {
-            gap: 1rem;
-        }
-
-        /* ✅ Animation douce du header quand il disparaît */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 999;
-            transition: transform 0.6s ease, opacity 0.4s ease;
-        }
-
-        header.hidden {
-            transform: translateY(-100%);
+        /* Splash Screen Animation */
+        #splashScreen.fade-out {
             opacity: 0;
-            pointer-events: none;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s;
         }
 
-        /* 🔹 Cache tout bouton X en haut à droite des modales */
-        .modal-inner .modal-close,
-        button[aria-label="Close"],
-        button[title="Fermer"],
-        button.close-modal {
-            display: none !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-        }
-
-        /* ✅ Animation douce du header quand il disparaît ou revient */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 999;
-            transition: transform 0.6s ease-in-out, opacity 0.4s ease-in-out;
-        }
-
-        header.hidden {
-            transform: translateY(-100%);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #customAlert {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(20, 20, 30, 0.9);
-            color: #fff;
-            padding: 1rem 1.5rem;
-            border-radius: 0.75rem;
-            font-size: 0.95rem;
-            text-align: center;
-            z-index: 9999;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        #customAlert.show {
-            opacity: 1;
-        }
-
-        /* 💡 Style du bouton actif dans la barre de navigation */
-        .nav-active {
-            background-color: rgba(255, 165, 0, 0.15);
-            /* orange léger et transparent */
-            border-radius: 0.5rem;
-            transition: background-color 0.3s ease;
-        }
-
-        .nav-active {
-            background-color: rgba(255, 165, 0, 0.15);
-            border: 1px solid rgba(255, 165, 0, 0.3);
-            color: #ffb347 !important;
-        }
-
-        .page {
-            opacity: 0;
-            filter: blur(5px);
-            transition: all 0.5s ease;
-        }
-
-        .page.active {
-            opacity: 1;
-            filter: blur(0);
-        }
-
-        /* === Bouton mode clair/sombre transparent === */
-        #themeToggle {
-            background-color: transparent !important;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.8s ease;
-        }
-
-        /* survol : léger effet de surbrillance */
-        #themeToggle:hover {
-            background-color: rgba(255, 255, 255, 0.1) !important;
-        }
-
-        /* mode clair : ajustement pour lisibilité */
-        html.light #themeToggle {
-            border: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        html.light #themeToggle:hover {
-            background-color: rgba(0, 0, 0, 0.05) !important;
-        }
-
-        /* === Animation disparition du header === */
-        header {
-            transition: transform 0.4s ease, opacity 0.4s ease;
-        }
-
-        header.hidden {
-            transform: translateY(-100%);
-            opacity: 0;
-        }
-
-        #mobileMenuBtn {
-            background-color: rgba(165, 108, 67, 0.849);
-            /* orange très léger et transparent */
-            transition: background-color 0.3s ease;
-        }
-
-        #mobileMenuBtn:hover {
-            background-color: rgba(227, 118, 71, 0.895);
-            /* un peu plus foncé au survol */
+        /* Fond animé subtil */
+        .bg-pattern {
+            background-image: radial-gradient(#f59e0b 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            opacity: 0.03;
+            /* Très subtil */
         }
     </style>
 </head>
 
-<!-- Splash Screen -->
-<div id="splashScreen">
-    <img src="logo.png" alt="Xassida Cloud" class="splash-logo">
-</div>
+<body
+    class="bg-dark-bg text-slate-200 antialiased selection:bg-brand-500 selection:text-white transition-colors duration-300 pb-24 md:pb-10">
 
-
-
-<body>
-    <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur border-b border-white/5">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-
-
-            <!-- Logo -->
-            <div class="flex items-center gap-3">
-                <img src="xc.png" alt="Logo Xassida Cloud" class="w-10 h-10 rounded-md object-cover"
-                    onerror="this.style.display='none'">
-                <div>
-                    <div class="text-lg font-extrabold text-amber-400">Xassida Cloud</div>
-                    <div class="text-xs text-slate-300">Bibliothèque numérique</div>
-                </div>
+    <!-- Splash Screen -->
+    <div id="splashScreen"
+        class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-dark-bg text-white transition-opacity duration-700">
+        <div class="relative flex flex-col items-center">
+            <!-- Logo placeholder ou image -->
+            <div
+                class="w-24 h-24 mb-6 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-2xl shadow-brand-500/20">
+                <span class="text-4xl font-serif font-bold text-white">XC</span>
             </div>
-
-            <!-- Navigation principale (visible seulement sur desktop) -->
-            <nav class="ml-6 hidden md:flex gap-2 items-center">
-                <button data-nav="home" class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Accueil</button>
-                <button data-nav="xassidas"
-                    class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Xassidas</button>
-                <button data-nav="livres" class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Livres</button>
-                <button data-nav="videos" class="nav-btn text-sm px-3 py-2 rounded-md hover:bg-white/5">Vidéos</button>
-            </nav>
-
-            <!-- Espace flexible -->
-            <div class="flex-1"></div>
-
-            <!-- Barre de recherche -->
-            <div id="searchWrap" class="flex items-center gap-2">
-                <input id="globalSearch" type="search" placeholder="Rechercher titre, auteur, tag..."
-                    class="rounded-md px-3 py-2 bg-white/5 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 w-40 sm:w-56 md:w-64 lg:w-72" />
-                <button id="btnSearch"
-                    class="px-3 py-2 rounded-md bg-amber-600 text-black text-sm font-semibold">Rechercher</button>
-            </div>
-
-            <!-- Bouton menu mobile -->
-            <button id="mobileMenuBtn" class="p-2 rounded-md bg-gray-200 dark:bg-gray-700 block md:hidden"
-                aria-label="Menu">
-                <svg class="w-6 h-6 text-gray-800 dark:text-white" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-
-            <!-- Bouton clair / sombre -->
-            <button id="themeToggle" aria-label="Basculer thème"
-                class="ml-2 p-2 rounded-md bg-gray-200 dark:bg-gray-700">
-                <svg id="themeIcon" class="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-                </svg>
-            </button>
-
+            <h1 class="text-3xl font-serif font-bold text-brand-400 tracking-tight">Xassida Cloud</h1>
+            <p class="mt-2 text-slate-400 text-sm tracking-widest uppercase">Bibliothèque Numérique</p>
+            <div class="mt-8 spinner"></div>
         </div>
+    </div>
 
-        <!-- Navigation mobile déroulante -->
-        <div id="mobileNav" class="md:hidden border-t border-white/5 bg-black/60 hidden">
-            <div class="px-4 py-3 flex flex-col gap-2">
-                <button data-nav="home" class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Accueil</button>
-                <button data-nav="xassidas"
-                    class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Xassidas</button>
-                <button data-nav="livres" class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Livres</button>
-                <button data-nav="videos" class="w-full text-left px-2 py-2 rounded-md hover:bg-white/5">Vidéos</button>
+    <!-- Background Pattern -->
+    <div class="fixed inset-0 pointer-events-none bg-pattern z-[-1]"></div>
+    <!-- Glow effect -->
+    <div
+        class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-500/10 blur-[100px] rounded-full pointer-events-none z-[-1]">
+    </div>
+
+    <!-- Header (Desktop & Mobile Top) -->
+    <header id="mainHeader" class="fixed top-0 left-0 right-0 z-40 transition-all duration-300 transform translate-y-0">
+        <div class="glass border-b border-white/5">
+            <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="app.router('home')">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center text-white font-bold font-serif text-sm">
+                        XC
+                    </div>
+                    <div class="hidden sm:block">
+                        <h1 class="font-bold text-slate-100 leading-none">Xassida Cloud</h1>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-md relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-slate-400 group-focus-within:text-brand-400 transition-colors"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="searchInput"
+                        class="w-full bg-slate-900/50 border border-slate-700 text-slate-200 text-sm rounded-full focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 block pl-10 p-2.5 transition-all placeholder:text-slate-500"
+                        placeholder="Rechercher xassida, livre...">
+                </div>
+
+                <!-- Actions Desktop -->
+                <div class="hidden md:flex items-center gap-4">
+                    <nav class="flex gap-1 bg-slate-800/50 p-1 rounded-lg">
+                        <button onclick="app.router('home')"
+                            class="nav-item px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
+                            data-target="home">Accueil</button>
+                        <button onclick="app.router('xassidas')"
+                            class="nav-item px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
+                            data-target="xassidas">Xassidas</button>
+                        <button onclick="app.router('livres')"
+                            class="nav-item px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
+                            data-target="livres">Livres</button>
+                        <button onclick="app.router('videos')"
+                            class="nav-item px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
+                            data-target="videos">Vidéos</button>
+                    </nav>
+                    <button id="themeToggle"
+                        class="p-2 text-slate-400 hover:text-brand-400 transition-colors rounded-full hover:bg-white/5">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Theme Toggle Mobile -->
+                <button id="themeToggleMobile" class="md:hidden p-2 text-slate-400">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
             </div>
         </div>
     </header>
 
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 pt-24 pb-8 min-h-screen">
 
-    <main class="max-w-6xl mx-auto px-4 pt-6">
-        <!-- HOME -->
-        <section id="page-home" class="page py-8">
-            <div class="rounded-2xl overflow-hidden hero-photo glass relative">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-                <div class="relative z-10 p-8 md:p-12 text-center">
-                    <h1 class="text-3xl md:text-4xl font-extrabold pulse-amber">Bienvenue sur Xassida Cloud</h1>
-                    <p class="mt-3 text-slate-200 max-w-2xl mx-auto">Bibliothèque communautaire de Xassidas, livres et
-                        vidéos — lecture intégrée et téléchargement.</p>
-                    <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                        <button data-nav="xassidas"
-                            class="px-4 py-2 rounded-md bg-amber-600 text-black font-bold">Explorer Xassidas</button>
-                        <button data-nav="livres"
-                            class="px-4 py-2 rounded-md border border-amber-600 text-amber-200">Explorer Livres</button>
-                        <button data-nav="videos" class="px-4 py-2 rounded-md bg-white/5 text-white">Kourels &
-                            Conferences</button>
+        <!-- Section: Accueil (Hero) -->
+        <section id="page-home" class="page-section space-y-8">
+            <!-- Hero Banner -->
+            <div
+                class="relative rounded-3xl overflow-hidden glass min-h-[300px] flex items-center justify-center text-center px-4">
+                <div
+                    class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1594895697624-9426ba292a47?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-overlay">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-dark-bg/50"></div>
+
+                <div class="relative z-10 max-w-2xl mx-auto space-y-6 animate-slide-up">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold tracking-wider uppercase mb-2">Bibliothèque
+                        Universelle</span>
+                    <h1 class="text-4xl md:text-6xl font-serif font-bold text-white leading-tight">
+                        Explorez l'univers <br> <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Xassida
+                            Cloud</span>
+                    </h1>
+                    <p class="text-slate-300 text-lg md:text-xl font-light">
+                        Accédez aux écrits de Cheikh Ahmadou Bamba, aux livres et aux vidéos de la communauté Mouride.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-3 pt-4">
+                        <button onclick="app.router('xassidas')"
+                            class="px-6 py-3 rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold transition-all hover:scale-105 shadow-lg shadow-brand-600/20">
+                            Lire un Xassida
+                        </button>
+                        <button onclick="app.router('videos')"
+                            class="px-6 py-3 rounded-full glass hover:bg-white/10 text-white font-semibold transition-all">
+                            Voir les Vidéos
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="rounded-xl p-4 glass">
-                    <h3 class="font-bold text-amber-300">Lecture intégrée</h3>
-                    <p class="text-sm mt-2 text-slate-300">Ouvre les PDF/Drive dans une modale pour lire sans quitter le
-                        site.</p>
+            <!-- Stats / Categories Quick Access -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div onclick="app.router('xassidas')"
+                    class="group glass p-6 rounded-2xl cursor-pointer hover:border-brand-500/30 transition-all">
+                    <div
+                        class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-100">Xassidas</h3>
+                    <p class="text-sm text-slate-400 mt-1">Lecture PDF et écoute intégrée des écrits.</p>
                 </div>
-                <div class="rounded-xl p-4 glass">
-                    <h3 class="font-bold text-amber-300">Téléchargement</h3>
-                    <p class="text-sm mt-2 text-slate-300">Téléchargement direct dans le site (si le Drive le permet).
-                    </p>
+                <div onclick="app.router('livres')"
+                    class="group glass p-6 rounded-2xl cursor-pointer hover:border-brand-500/30 transition-all">
+                    <div
+                        class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-100">Livres</h3>
+                    <p class="text-sm text-slate-400 mt-1">Ouvrages sur le Mouridisme et l'Islam.</p>
                 </div>
-                <div class="rounded-xl p-4 glass">
-                    <h3 class="font-bold text-amber-300">Vidéos intégrées</h3>
-                    <p class="text-sm mt-2 text-slate-300">Regarde des vidéos YouTube directement dans une modale.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- XASSIDAS -->
-        <section id="page-xassidas" class="page hidden py-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold">Espace Xassida</h2>
-                <button data-nav="home" class="px-3 py-1 rounded-md bg-white/6">Retour</button>
-            </div>
-            <div id="gridXassida" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite">
-            </div>
-            <div class="mt-6 flex items-center justify-between">
-                <div class="text-sm text-slate-400" id="xassidaCount"></div>
-                <div class="flex gap-2">
-                    <button id="prevX" class="px-3 py-1 rounded-md bg-white/6">Précédent</button>
-                    <button id="nextX" class="px-3 py-1 rounded-md bg-white/6">Suivant</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- LIVRES -->
-        <section id="page-livres" class="page hidden py-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold">Espace Livres</h2>
-                <button data-nav="home" class="px-3 py-1 rounded-md bg-white/6">Retour</button>
-            </div>
-            <div id="gridLivres" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite">
-            </div>
-            <div class="mt-6 flex items-center justify-between">
-                <div class="text-sm text-slate-400" id="livresCount"></div>
-                <div class="flex gap-2">
-                    <button id="prevL" class="px-3 py-1 rounded-md bg-white/6">Précédent</button>
-                    <button id="nextL" class="px-3 py-1 rounded-md bg-white/6">Suivant</button>
+                <div onclick="app.router('videos')"
+                    class="group glass p-6 rounded-2xl cursor-pointer hover:border-brand-500/30 transition-all">
+                    <div
+                        class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-100">Vidéos</h3>
+                    <p class="text-sm text-slate-400 mt-1">Prestations de Kourels et conférences.</p>
                 </div>
             </div>
         </section>
 
-        <!-- VIDEOS -->
-        <section id="page-videos" class="page hidden py-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold">Vidéos</h2>
-                <button data-nav="home" class="px-3 py-1 rounded-md bg-white/6">Retour</button>
-            </div>
-            <div id="gridVideos" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite">
-            </div>
-            <div class="mt-6 flex items-center justify-between">
-                <div class="text-sm text-slate-400" id="videosCount"></div>
-                <div class="flex gap-2">
-                    <button id="prevV" class="px-3 py-1 rounded-md bg-white/6">Précédent</button>
-                    <button id="nextV" class="px-3 py-1 rounded-md bg-white/6">Suivant</button>
+        <!-- Section Template (Reusable for Xassidas, Livres, Videos) -->
+        <section id="page-content" class="page-section hidden">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 id="sectionTitle" class="text-2xl md:text-3xl font-serif font-bold text-brand-400">Titre Section
+                    </h2>
+                    <p id="sectionSubtitle" class="text-sm text-slate-400">Description de la section</p>
                 </div>
+                <div class="text-xs text-slate-500 bg-slate-800/50 px-3 py-1 rounded-full border border-white/5"
+                    id="itemCount">0 éléments</div>
+            </div>
+
+            <!-- Grid Content -->
+            <div id="contentGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                <!-- Cards injected here via JS -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center mt-10 gap-2">
+                <button id="btnPrev"
+                    class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium">Précédent</button>
+                <span id="pageIndicator" class="px-4 py-2 rounded-lg bg-slate-800/30 text-sm flex items-center">1</span>
+                <button id="btnNext"
+                    class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium">Suivant</button>
             </div>
         </section>
 
-        <footer class="py-8 text-center text-sm text-slate-400">
-            © <span id="year"></span> Xassida Cloud — Usage éducatif • Développé par Mor Faye
-        </footer>
     </main>
 
-    <!-- Document modal -->
-    <div id="docModal" class="fixed inset-0 z-70 hidden items-center justify-center">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur"></div>
-        <div class="relative w-[95%] max-w-6xl h-[90vh] bg-white dark:bg-slate-900 rounded-xl overflow-hidden">
-            <!-- Top header with close X (replaces external window icon) -->
-            <div class="modal-inner flex items-center justify-between p-3 border-b border-slate-200/10">
-                <div>
-                    <div id="docTitle" class="font-bold text-slate-900 dark:text-slate-100"></div>
-                    <div id="docMeta" class="text-xs text-slate-500 dark:text-slate-400"></div>
+    <!-- Mobile Bottom Navigation (App Style) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-white/10 z-50 pb-safe">
+        <div class="flex justify-around items-center h-16">
+            <button onclick="app.router('home')"
+                class="nav-mobile flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors"
+                data-target="home">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span class="text-[10px] font-medium">Accueil</span>
+            </button>
+            <button onclick="app.router('xassidas')"
+                class="nav-mobile flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors"
+                data-target="xassidas">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span class="text-[10px] font-medium">Xassidas</span>
+            </button>
+            <button onclick="app.router('livres')"
+                class="nav-mobile flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors"
+                data-target="livres">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span class="text-[10px] font-medium">Livres</span>
+            </button>
+            <button onclick="app.router('videos')"
+                class="nav-mobile flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors"
+                data-target="videos">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-[10px] font-medium">Vidéos</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Modal Universelle (PDF / Video) -->
+    <div id="universalModal" class="fixed inset-0 z-[60] hidden flex-col items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal()"></div>
+
+        <!-- Content Container -->
+        <div
+            class="relative w-full max-w-5xl h-[85vh] bg-dark-card rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-white/10 animate-slide-up">
+            <!-- Header Modal -->
+            <div class="h-14 flex items-center justify-between px-4 border-b border-white/5 bg-slate-900/50">
+                <div class="overflow-hidden">
+                    <h3 id="modalTitle" class="text-sm font-bold text-white truncate">Titre du document</h3>
+                    <p id="modalSubtitle" class="text-xs text-brand-400 truncate">Auteur / Info</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button id="docDownload" class="px-3 py-1 rounded-md bg-amber-600 text-black">Télécharger</button>
-                    <button id="docCloseTop" class="modal-close" aria-label="Fermer la modale">✖</button>
+                    <button id="modalDownloadBtn"
+                        class="p-2 rounded-lg bg-white/5 hover:bg-brand-600 hover:text-white text-slate-400 transition-colors"
+                        title="Télécharger">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
+                    <button onclick="app.closeModal()"
+                        class="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-slate-400 transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
             </div>
-            <iframe id="docFrame" class="w-full h-full border-0" title="Lecteur document"></iframe>
-            <!-- Bottom-right close -->
-            <button id="docCloseBottom" class="modal-bottom-close" aria-label="Fermer la modale">✖</button>
+
+            <!-- Iframe Container -->
+            <div class="flex-1 bg-black relative">
+                <div id="modalLoader" class="absolute inset-0 flex items-center justify-center text-brand-500">
+                    <div class="spinner"></div>
+                </div>
+                <iframe id="modalFrame" class="w-full h-full border-0 relative z-10" allowfullscreen></iframe>
+            </div>
         </div>
     </div>
 
-    <!-- Video modal -->
-    <div id="vidModal" class="fixed inset-0 z-70 hidden items-center justify-center">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur"></div>
-        <div class="relative w-[95%] max-w-3xl bg-black rounded-xl overflow-hidden">
-            <div class="modal-inner flex items-center justify-between p-3 border-b border-slate-200/10 bg-slate-900">
-                <div>
-                    <div id="vidTitle" class="font-bold text-white"></div>
-                    <div id="vidMeta" class="text-xs text-slate-400"></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="vidDownload" class="px-3 py-1 rounded-md bg-amber-600 text-black">Télécharger</button>
-                    <button id="vidCloseTop" class="modal-close" aria-label="Fermer la modale">✖</button>
-                </div>
-            </div>
-            <div class="aspect-video bg-black">
-                <iframe id="vidFrame" class="w-full h-full border-0"
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen
-                    title="Vidéo"></iframe>
-            </div>
-            <button id="vidCloseBottom" class="modal-bottom-close" aria-label="Fermer la modale">✖</button>
-        </div>
+    <!-- Custom Alert -->
+    <div id="toast"
+        class="fixed top-20 left-1/2 -translate-x-1/2 bg-slate-900 border border-brand-500 text-white px-6 py-3 rounded-xl shadow-2xl z-[70] transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3">
+        <svg class="w-5 h-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span id="toastMsg" class="text-sm font-medium">Message</span>
     </div>
 
+    <!-- Script Application -->
     <script>
+        // --- DONNÉES (Les immenses tableaux fournis par l'utilisateur) ---
+        // Je les place ici pour ne pas alourdir la lecture, mais ils sont essentiels.
 
-        // 🧭 Gestion de la navigation + surbrillance du bouton actif
-        const navButtons = document.querySelectorAll('[data-nav]');
-
-        function updateActiveNav(currentPage) {
-            navButtons.forEach(btn => {
-                if (btn.dataset.nav === currentPage) {
-                    btn.classList.add('nav-active');
-                } else {
-                    btn.classList.remove('nav-active');
-                }
-            });
-        }
-
-        navButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const page = btn.dataset.nav;
-                showPage(page);
-                updateActiveNav(page); // 🟧 met à jour le bouton actif
-                document.getElementById('mobileNav').classList.add('hidden');
-            });
-        });
-
-        // 🔁 Quand on recharge la page avec un # (ex: #videos)
-        const currentHash = location.hash.replace('#', '') || 'home';
-        updateActiveNav(currentHash);
-
-
-        /* ======================
-           Data (Drive links & YouTube IDs you provided)
-           ====================== */
         const XASSIDAS = [
             {
                 id: 'xb_astahfiru_ar',
@@ -1360,12 +468,6 @@
                 driveLink: 'https://drive.google.com/file/d/1pd1Qrl9g7pH_4I_84kPON4edwVThHKqh/view?usp=drive_link'
             },
 
-            {
-                id: 'xb_nafih_ar',
-                title: 'Mawahibou Nafih Ar',
-                author: 'Cheikh Ahmadou Bamba',
-                driveLink: 'https://drive.google.com/file/d/19984yj2zb-g28XkEZu2pQh0-1er6sp8U/view?usp=drive_link'
-            },
 
             {
                 id: 'xb_wadjah-wadj_ar',
@@ -1959,7 +1061,7 @@
 
             {
                 id: '115',
-                title: 'FIri_Wasful_muriid_shifaatu_shaadiqil_muriid_wolof-fr',
+                title: 'FIri_Wasful_muriid_shifaatu shaadiqil_muriid_wolof-fr',
                 author: 'Cheikh Ahmadou Bamba',
                 driveLink: 'https://drive.google.com/file/d/1hoP4McaFrqGeEmMQnUAvo2Ig9xaqhIgV/view?usp=drive_link'
             },
@@ -2709,35 +1811,35 @@
 
             {
                 id: '223',
-                title: 'Mawahibu_nafih-ar-2',
+                title: 'Mawahibou nafih-ar',
                 author: 'Cheikh Ahmadou Bamba',
                 driveLink: 'https://drive.google.com/file/d/15BeL6aKGbYwkIg75P0WteoPp9S-2gQ-Y/view?usp=drive_link'
             },
 
             {
                 id: '224',
-                title: 'Mawahibu_nafih_fr',
+                title: 'Mawahibou_nafih_fr',
                 author: 'Cheikh Ahmadou Bamba',
                 driveLink: 'https://drive.google.com/file/d/1ZdZ_Dx3fuFoM-hQCfB6rERgMqH6ITOse/view?usp=drive_link'
             },
 
             {
                 id: '225',
-                title: 'Mawahibu-r Rahmaane',
+                title: 'Mawahibou-r Rahmaane',
                 author: 'Cheikh Ahmadou Bamba',
                 driveLink: 'https://drive.google.com/file/d/1RL2pSoHtv-ghE5rBn8wGmq7cmlhIMrOM/view?usp=drive_link'
             },
 
             {
                 id: '226',
-                title: 'Mawahibul Xuduus-fr',
+                title: 'Mawahiboul Xuduus-fr',
                 author: 'Cheikh Ahmadou Bamba',
                 driveLink: 'https://drive.google.com/file/d/1X-M0PRifR-yVighBQVdFOo3pzaHqwpiy/view?usp=drive_link'
             },
 
             {
                 id: '227',
-                title: 'Mawahibul Xuduus-ar',
+                title: 'Mawahiboul Xuduus-ar',
                 author: 'Cheikh Ahmadou Bamba',
                 driveLink: 'https://drive.google.com/file/d/19uXSfKjQE4A_pY_acDouWVBwKo3z8v0x/view?usp=drive_link'
             },
@@ -3916,7 +3018,6 @@
         LIVRES.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
 
 
-
         const VIDEOS = [
             {
                 id: 'v1',
@@ -4216,8 +3317,8 @@
 
             {
                 id: 'v38',
-                title: 'Short',
-                speaker: 'Xassida',
+                title: 'Waxaani',
+                speaker: 'Kourel Salihi',
                 tag: 'Xassida',
                 link: 'https://drive.google.com/file/d/1k7h_p9wJXCBWfBZCHGeQKXUThtUFjh58/view?usp=drive_link'
             },
@@ -4379,7 +3480,7 @@
 
             {
                 id: 'v58',
-                title: 'Serenite et Secrets de reussite dans le vie',
+                title: 'Sérénité et clés de la réussite dans la vie',
                 speaker: 'Serigne Bassirou Khelcom',
                 tag: 'Xassida',
                 link: 'https://youtu.be/fEALWBy1mBQ?si=fwhQKloPE7oCPRNU/preview'
@@ -4510,470 +3611,310 @@
 
         ];
 
+        // --- APP LOGIC ---
 
+        const app = {
+            state: {
+                page: 'home',
+                search: '',
+                pagination: {
+                    xassidas: 1,
+                    livres: 1,
+                    videos: 1
+                },
+                itemsPerPage: 12
+            },
 
-        // Trie les vidéos par ordre alphabétique du titre
-        VIDEOS.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
+            init() {
+                // Splash Screen
+                setTimeout(() => {
+                    document.getElementById('splashScreen').classList.add('fade-out');
+                }, 2000);
 
-        /* ======================
-           Internal registry (no visible IDs)
-           ====================== */
-        const uidMap = new Map();
-        function registerItem(item) {
-            const key = Math.random().toString(36).slice(2, 10);
-            uidMap.set(key, item);
-            return key;
-        }
+                // Theme
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                this.setTheme(savedTheme);
 
-        /* helpers */
-        function esc(s = '') {return String(s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));}
-        function toPreview(url) {
-            if (!url) return '';
-            try {
-                // extraire l'ID du fichier Google Drive
-                const match = url.match(/\/file\/d\/([^\/]+)\//);
-                if (match && match[1]) {
-                    const id = match[1];
-                    const direct = `https://drive.google.com/uc?export=download&id=${id}`;
-                    // utiliser Google Docs Viewer
-                    return `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(direct)}`;
-                }
-                // fallback: si pas d'ID trouvé, utiliser le lien brut
-                return `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
-            } catch (err) {
-                console.error('Erreur création preview:', err);
-                return url;
-            }
-        }
+                // Event Listeners
+                document.getElementById('themeToggle').onclick = () => this.toggleTheme();
+                document.getElementById('themeToggleMobile').onclick = () => this.toggleTheme();
 
-        function driveIdFromUrl(url) {const m = url.match(/\/file\/d\/([^\/]+)\//); return m ? m[1] : null;}
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.state.search = e.target.value.toLowerCase();
+                    // Si on cherche depuis home, on va vers xassidas par défaut pour montrer les résultats
+                    if (this.state.page === 'home' && this.state.search.length > 0) {
+                        this.router('xassidas');
+                    } else if (this.state.page !== 'home') {
+                        this.renderPage(this.state.page);
+                    }
+                });
 
-        /* pagination */
-        let xPage = 1, lPage = 1, vPage = 1; const pageSize = 9;
+                // Scroll Header Logic
+                let lastScroll = 0;
+                window.addEventListener('scroll', () => {
+                    const currentScroll = window.pageYOffset;
+                    const header = document.getElementById('mainHeader');
+                    if (currentScroll > lastScroll && currentScroll > 100) {
+                        header.style.transform = 'translateY(-100%)';
+                    } else {
+                        header.style.transform = 'translateY(0)';
+                    }
+                    lastScroll = currentScroll;
+                });
 
-        /* DOM refs */
-        const pages = {
-            home: document.getElementById('page-home'),
-            xassidas: document.getElementById('page-xassidas'),
-            livres: document.getElementById('page-livres'),
-            videos: document.getElementById('page-videos')
-        };
-        function showPage(name) {
-            Object.entries(pages).forEach(([key, el]) => {
-                if (key === name) {
-                    el.classList.remove('hidden');
-                    requestAnimationFrame(() => el.classList.add('active'));
+                // Pagination btns
+                document.getElementById('btnPrev').onclick = () => this.changePage(-1);
+                document.getElementById('btnNext').onclick = () => this.changePage(1);
+
+                // Init items sort (Copied from original)
+                XASSIDAS.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
+                LIVRES.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
+                VIDEOS.sort((a, b) => a.title.localeCompare(b.title, 'fr', {sensitivity: 'base'}));
+            },
+
+            setTheme(theme) {
+                if (theme === 'light') {
+                    document.documentElement.classList.add('light');
+                    document.documentElement.classList.remove('dark');
                 } else {
-                    el.classList.remove('active');
-                    setTimeout(() => el.classList.add('hidden'), 400);
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
                 }
-            });
-            history.replaceState(null, '', '#' + name);
-            updateActiveNav(name);
-        }
+                localStorage.setItem('theme', theme);
+            },
 
+            toggleTheme() {
+                const isLight = document.documentElement.classList.contains('light');
+                this.setTheme(isLight ? 'dark' : 'light');
+            },
 
-        /* nav */
-        document.querySelectorAll('[data-nav]').forEach(btn => btn.addEventListener('click', e => {
-            showPage(btn.dataset.nav);
-            document.getElementById('mobileNav').classList.add('hidden');
-        }));
+            router(target) {
+                this.state.page = target;
 
-        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-            document.getElementById('mobileNav').classList.toggle('hidden');
-        });
+                // Update UI active states
+                document.querySelectorAll('.nav-item, .nav-mobile').forEach(el => {
+                    if (el.dataset.target === target) {
+                        el.classList.add('text-brand-400', 'bg-white/5');
+                        el.classList.remove('text-slate-400');
+                    } else {
+                        el.classList.remove('text-brand-400', 'bg-white/5');
+                        el.classList.add('text-slate-400');
+                    }
+                });
 
-        /* theme */
-        const htmlEl = document.documentElement;
-        const themeToggle = document.getElementById('themeToggle');
-        function applyTheme(t) {
-            if (t === 'light') {
-                htmlEl.classList.add('light');
-                localStorage.setItem('theme', 'light');
-                themeIcon.innerHTML = `<path d="M21 12.79A9 9 0 1111.21 3A7 7 0 0021 12.79z" />`;
-                // ☀️ Soleil (mode clair)
-            } else {
-                htmlEl.classList.remove('light');
-                localStorage.setItem('theme', 'dark');
-                themeIcon.innerHTML = `<path d="M12 4.5V2m0 20v-2.5M4.5 12H2m20 0h-2.5M5.64 5.64l-1.77-1.77m15.26 15.26l-1.77-1.77M18.36 5.64l1.77-1.77M5.64 18.36l-1.77 1.77M12 6.5a5.5 5.5 0 1 1 0 11a5.5 5.5 0 0 1 0-11z" />`;
+                const homeEl = document.getElementById('page-home');
+                const contentEl = document.getElementById('page-content');
 
-                // 🌙 Lune (mode sombre)
-            }
-        }
-        applyTheme(localStorage.getItem('theme') || 'dark');
-        themeToggle.addEventListener('click', () => applyTheme(htmlEl.classList.contains('light') ? 'dark' : 'light'));
-
-        /* Build card */
-        function buildCard(item, kind) {
-            const key = registerItem({...item, kind});
-            const tag = kind === 'x' ? 'Xassida' : (kind === 'l' ? 'Livre' : 'Vidéos');
-            const initials = (item.title || '').split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase();
-            const el = document.createElement('article');
-            el.className = 'rounded-xl p-4 glass hover:shadow-lg transition flex flex-col h-full';
-            el.innerHTML = `
-    <div class="h-32 rounded-md bg-gradient-to-br from-black/20 to-white/5 flex items-center justify-center text-3xl font-extrabold text-amber-400">${esc(initials)}</div>
-    <h3 class="mt-3 font-semibold text-lg">${esc(item.title)}</h3>
-    <p class="text-sm text-slate-300 mt-1">${esc(item.author || item.speaker || '')}</p>
-    <div class="mt-3 flex items-center justify-between gap-2">
-      <div class="text-xs px-2 py-1 rounded-full bg-amber-600 text-black">${esc(tag)}</div>
-      <div class="flex gap-2">
-        ${kind !== 'v' ? `<button class="btn-read px-3 py-1 rounded-md btn-amber" data-uid="${key}">Lire</button>
-                        <button class="btn-dl px-3 py-1 rounded-md bg-white/6" data-uid="${key}">Télécharger</button>` :
-                    `<button class="btn-watch px-3 py-1 rounded-md btn-amber" data-uid="${key}">Regarder</button>`}
-      </div>
-    </div>`;
-            return el;
-        }
-
-        /* render lists */
-        const gridX = document.getElementById('gridXassida'), gridL = document.getElementById('gridLivres'), gridV = document.getElementById('gridVideos');
-        const countX = document.getElementById('xassidaCount'), countL = document.getElementById('livresCount'), countV = document.getElementById('videosCount');
-
-        function renderList(items, container, page, kind, countEl) {
-            const total = items.length;
-            const start = (page - 1) * pageSize;
-            const slice = items.slice(start, start + pageSize);
-            container.innerHTML = '';
-            if (slice.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-slate-300 bg-white/6 rounded-md">Aucun résultat</div>`;
-            } else {
-                slice.forEach(it => container.appendChild(buildCard(it, kind)));
-            }
-            if (countEl) countEl.textContent = `${Math.min(total, start + 1)}–${Math.min(total, start + pageSize)} sur ${total}`;
-        }
-
-        renderList(XASSIDAS, gridX, xPage, 'x', countX);
-        renderList(LIVRES, gridL, lPage, 'l', countL);
-        renderList(VIDEOS, gridV, vPage, 'v', countV);
-
-        /* pagination buttons */
-        document.getElementById('prevX').addEventListener('click', () => {if (xPage > 1) xPage--; renderList(XASSIDAS, gridX, xPage, 'x', countX);});
-        document.getElementById('nextX').addEventListener('click', () => {xPage++; renderList(XASSIDAS, gridX, xPage, 'x', countX);});
-        document.getElementById('prevL').addEventListener('click', () => {if (lPage > 1) lPage--; renderList(LIVRES, gridL, lPage, 'l', countL);});
-        document.getElementById('nextL').addEventListener('click', () => {lPage++; renderList(LIVRES, gridL, lPage, 'l', countL);});
-        document.getElementById('prevV').addEventListener('click', () => {if (vPage > 1) vPage--; renderList(VIDEOS, gridV, vPage, 'v', countV);});
-        document.getElementById('nextV').addEventListener('click', () => {vPage++; renderList(VIDEOS, gridV, vPage, 'v', countV);});
-
-        /* search */
-        const globalSearch = document.getElementById('globalSearch'), btnSearch = document.getElementById('btnSearch');
-        function doGlobalSearch() {
-            const q = (globalSearch.value || '').trim().toLowerCase();
-            if (!q) {
-                xPage = lPage = vPage = 1;
-                renderList(XASSIDAS, gridX, xPage, 'x', countX);
-                renderList(LIVRES, gridL, lPage, 'l', countL);
-                renderList(VIDEOS, gridV, vPage, 'v', countV);
-                showPage('home');
-                return;
-            }
-            const rx = XASSIDAS.filter(i => (i.title + ' ' + (i.author || '')).toLowerCase().includes(q));
-            const rl = LIVRES.filter(i => (i.title + ' ' + (i.author || '')).toLowerCase().includes(q));
-            const rv = VIDEOS.filter(i => (i.title + ' ' + (i.speaker || '') + ' ' + (i.tag || '')).toLowerCase().includes(q));
-            renderList(rx, gridX, 1, 'x', countX);
-            renderList(rl, gridL, 1, 'l', countL);
-            renderList(rv, gridV, 1, 'v', countV);
-            showPage('xassidas');
-        }
-        btnSearch.addEventListener('click', doGlobalSearch);
-        globalSearch.addEventListener('keydown', (e) => {if (e.key === 'Enter') doGlobalSearch(); if (e.key === 'Escape') {globalSearch.value = ''; doGlobalSearch();} });
-
-        /* delegated click handling */
-        document.body.addEventListener('click', async (e) => {
-            const uid = e.target?.dataset?.uid;
-            if (uid) {
-                const item = uidMap.get(uid);
-                if (!item) {alert('Ressource introuvable.'); return;}
-
-                if (e.target.classList.contains('btn-read')) {
-                    openDocModal(item);
-                    return;
+                if (target === 'home') {
+                    homeEl.classList.remove('hidden');
+                    contentEl.classList.add('hidden');
+                    // Reset search on home return
+                    document.getElementById('searchInput').value = '';
+                    this.state.search = '';
+                } else {
+                    homeEl.classList.add('hidden');
+                    contentEl.classList.remove('hidden');
+                    this.renderPage(target);
                 }
-                if (e.target.classList.contains('btn-dl')) {
-                    await telechargerItem(item);
-                    return;
-                }
-                if (e.target.classList.contains('btn-watch')) {
-                    openVidModal(item);
-                    return;
-                }
-            }
-        });
 
-        /* Modal logic */
-        const docModal = document.getElementById('docModal'), docFrame = document.getElementById('docFrame');
-        const docTitle = document.getElementById('docTitle'), docMeta = document.getElementById('docMeta');
-        const docCloseTop = document.getElementById('docCloseTop'), docCloseBottom = document.getElementById('docCloseBottom'), docDownload = document.getElementById('docDownload');
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            },
 
-        function openDocModal(item) {
-            docModal._current = item;
-            docTitle.textContent = item.title || '';
-            docMeta.textContent = item.author || '';
-            docFrame.src = toPreview(item.driveLink || '');
-            docModal.classList.remove('hidden'); docModal.classList.add('flex');
-            document.documentElement.style.overflow = 'hidden';
-            // make sure close buttons visible (style)
-            setTimeout(() => {docCloseBottom.classList.toggle('light', document.documentElement.classList.contains('light'))}, 60);
-        }
-        function closeDocModal() {
-            docModal.classList.add('hidden'); docModal.classList.remove('flex');
-            docFrame.src = 'about:blank';
-            docModal._current = null;
-            document.documentElement.style.overflow = '';
-        }
-        docCloseTop.addEventListener('click', closeDocModal);
-        docCloseBottom.addEventListener('click', closeDocModal);
-        docDownload.addEventListener('click', async () => {
-            if (!docModal._current) return alert('Aucune ressource sélectionnée.');
-            await telechargerItem(docModal._current);
-        });
-        docModal.addEventListener('click', (e) => {if (e.target === docModal) closeDocModal();});
+            getData(type) {
+                let data = [];
+                if (type === 'xassidas') data = XASSIDAS;
+                if (type === 'livres') data = LIVRES;
+                if (type === 'videos') data = VIDEOS;
 
-        /* Video modal */
-        const vidModal = document.getElementById('vidModal'), vidFrame = document.getElementById('vidFrame');
-        const vidTitle = document.getElementById('vidTitle'), vidMeta = document.getElementById('vidMeta');
-        const vidCloseTop = document.getElementById('vidCloseTop'), vidCloseBottom = document.getElementById('vidCloseBottom'), vidDownload = document.getElementById('vidDownload');
-
-        function openVidModal(item) {
-            vidModal._current = item;
-            vidTitle.textContent = item.title || '';
-            vidMeta.textContent = item.speaker || '';
-
-            let src = '';
-
-            // 🔍 Détection du type de lien
-            if (item.link.includes('drive.google.com')) {
-                src = item.link.includes('/preview')
-                    ? item.link
-                    : item.link.replace('/view', '/preview');
-            } else if (item.link.includes('youtu')) {
-                const match = item.link.match(/(?:v=|\/embed\/|youtu\.be\/)([^"&?\/\s]+)/);
-                if (match && match[1]) {
-                    src = `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0`;
-                }
-            } else {
-                alert('Format vidéo non reconnu.');
-                return;
-            }
-
-            vidFrame.src = src;
-            vidModal.classList.remove('hidden');
-            vidModal.classList.add('flex');
-            document.documentElement.style.overflow = 'hidden';
-            hideHeader();
-
-            // 🌗 Thème clair/sombre du bouton de fermeture
-            setTimeout(() => {
-                vidCloseBottom.classList.toggle(
-                    'light',
-                    document.documentElement.classList.contains('light')
-                );
-            }, 60);
-
-
-            function showCustomAlert(msg) {
-                let alertBox = document.getElementById("customAlert");
-                if (!alertBox) {
-                    alertBox = document.createElement("div");
-                    alertBox.id = "customAlert";
-                    document.body.appendChild(alertBox);
-                }
-                alertBox.innerHTML = msg;
-                alertBox.classList.add("show");
-                setTimeout(() => alertBox.classList.remove("show"), 3500);
-            }
-
-
-            // 🧩 Vérifie si YouTube bloque l’intégration (erreur 153)
-            if (item.link.includes('youtu')) {
-                const check = setTimeout(() => {
-                    showCustomAlert(
-                        "⚠️ Cette vidéo ne peut pas être lue ici.<br>Ouverture directe sur YouTube..."
+                if (this.state.search) {
+                    return data.filter(item =>
+                        (item.title && item.title.toLowerCase().includes(this.state.search)) ||
+                        (item.author && item.author.toLowerCase().includes(this.state.search)) ||
+                        (item.speaker && item.speaker.toLowerCase().includes(this.state.search))
                     );
-                    closeVidModal();
-                    window.open(item.link, "_blank");
-                }, 5000);
-
-                vidFrame.onload = () => clearTimeout(check);
-            }
-        }
-
-
-
-        function closeVidModal() {
-            vidModal.classList.add('hidden'); vidModal.classList.remove('flex');
-            vidFrame.src = '';
-            vidModal._current = null;
-            document.documentElement.style.overflow = '';
-        }
-        vidCloseTop.addEventListener('click', closeVidModal);
-        vidCloseBottom.addEventListener('click', closeVidModal);
-
-        vidDownload.addEventListener('click', async () => {
-            if (!vidModal._current) return alert('Aucune vidéo sélectionnée.');
-            const link = vidModal._current.link;
-            if (!link) return alert('Aucun lien disponible.');
-
-            if (link.includes('drive.google.com')) {
-                // Téléchargement direct depuis Drive
-                const match = link.match(/\/file\/d\/([^\/]+)\//);
-                const id = match ? match[1] : null;
-                const direct = id
-                    ? `https://drive.google.com/uc?export=download&id=${id}`
-                    : link;
-                window.open(direct, '_blank');
-            } else if (link.includes('youtu')) {
-                // Copie le lien YouTube
-                try {
-                    await navigator.clipboard.writeText(link);
-                    alert('🔗 Lien YouTube copié. Ouvre-le dans ton navigateur pour télécharger.');
-                } catch {
-                    alert('Voici le lien : ' + link);
                 }
-            }
-        });
+                return data;
+            },
 
+            renderPage(type) {
+                const titles = {
+                    'xassidas': {t: 'Xassidas', s: 'Les écrits de Cheikh Ahmadou Bamba'},
+                    'livres': {t: 'Livres', s: 'Bibliothèque Mouride'},
+                    'videos': {t: 'Vidéos', s: 'Conférences et Zikrs'}
+                };
 
-        vidModal.addEventListener('click', (e) => {if (e.target === vidModal) closeVidModal();});
+                document.getElementById('sectionTitle').innerText = titles[type].t;
+                document.getElementById('sectionSubtitle').innerText = titles[type].s;
 
-        /* helper to find item by preview (if needed) */
-        function findItemByDrivePreview(previewUrl) {
-            return [...XASSIDAS, ...LIVRES].find(v => toPreview(v.driveLink || '') === previewUrl) || null;
-        }
+                const data = this.getData(type);
+                const pageIndex = this.state.pagination[type];
+                const start = (pageIndex - 1) * this.state.itemsPerPage;
+                const end = start + this.state.itemsPerPage;
+                const paginatedData = data.slice(start, end);
 
-        /* download function: fetch -> blob (stays within site), fallback copies link and shows preview */
-        async function telechargerItem(item) {
-            if (!item) {
-                alert('Ressource introuvable.');
-                return;
-            }
+                document.getElementById('itemCount').innerText = `${data.length} éléments`;
+                document.getElementById('pageIndicator').innerText = `${pageIndex} / ${Math.ceil(data.length / this.state.itemsPerPage) || 1}`;
 
-            const link = item.driveLink || '';
-            if (!link) {
-                alert('Aucun lien de téléchargement.');
-                return;
-            }
+                // Gestion boutons pagination
+                document.getElementById('btnPrev').disabled = pageIndex === 1;
+                document.getElementById('btnNext').disabled = end >= data.length;
 
-            // On tente d'extraire l'ID du lien Google Drive
-            const idMatch = link.match(/\/file\/d\/([^\/]+)\//);
-            let directLink = link;
-            if (idMatch && idMatch[1]) {
-                directLink = `https://drive.google.com/uc?export=download&id=${idMatch[1]}`;
-            }
+                const grid = document.getElementById('contentGrid');
+                grid.innerHTML = '';
 
-            try {
-                // Ouvre le lien dans un nouvel onglet (évite CORS)
-                window.open(directLink, "_blank", "noopener");
-            } catch (err) {
-                console.error("Erreur d'ouverture du lien :", err);
-                alert("Impossible d'ouvrir le lien. Copié dans le presse-papiers.");
-                try {
-                    await navigator.clipboard.writeText(link);
-                } catch (e) {
-                    console.error("Impossible de copier :", e);
+                if (paginatedData.length === 0) {
+                    grid.innerHTML = `<div class="col-span-full py-10 text-center text-slate-500">Aucun résultat trouvé.</div>`;
+                    return;
                 }
+
+                paginatedData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "glass p-4 rounded-2xl hover:bg-white/5 transition-all group border border-white/5 hover:border-brand-500/30 flex flex-col h-full";
+
+                    // Initials logic
+                    const title = item.title || "Sans titre";
+                    const initials = title.substring(0, 2).toUpperCase();
+                    const sub = item.author || item.speaker || "";
+
+                    // Card Content
+                    card.innerHTML = `
+                        <div class="h-32 mb-4 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/5 flex items-center justify-center text-2xl font-bold text-brand-500 font-serif relative overflow-hidden group-hover:scale-[1.02] transition-transform">
+                            <span class="z-10">${initials}</span>
+                            <div class="absolute inset-0 bg-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                        <h4 class="font-bold text-slate-200 line-clamp-2 mb-1 flex-1">${title}</h4>
+                        <p class="text-xs text-slate-400 mb-4 line-clamp-1">${sub}</p>
+                        <div class="flex gap-2 mt-auto">
+                            <button onclick="app.openItem('${type}', '${item.id}')" class="flex-1 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-lg shadow-brand-900/20">
+                                ${type === 'videos' ? 'Regarder' : 'Lire'}
+                            </button>
+                            <button onclick="app.downloadItem('${type}', '${item.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            },
+
+            changePage(direction) {
+                const currentType = this.state.page;
+                if (currentType === 'home') return;
+
+                this.state.pagination[currentType] += direction;
+                this.renderPage(currentType);
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            },
+
+            getItemById(type, id) {
+                return this.getData(type).find(i => i.id === id);
+            },
+
+            // --- VIEWERS LOGIC ---
+
+            getPreviewUrl(url) {
+                if (!url) return '';
+                // Google Drive Preview Helper
+                if (url.includes('drive.google.com')) {
+                    const match = url.match(/\/file\/d\/([^\/]+)\//);
+                    if (match && match[1]) {
+                        // Utilisation du viewer Google
+                        return `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(`https://drive.google.com/uc?export=download&id=${match[1]}`)}`;
+                    }
+                }
+                // YouTube Embed Helper
+                if (url.includes('youtu')) {
+                    const match = url.match(/(?:v=|\/embed\/|youtu\.be\/)([^"&?\/\s]+)/);
+                    if (match && match[1]) {
+                        return `https://www.youtube.com/embed/${match[1]}?autoplay=1`;
+                    }
+                }
+                return url;
+            },
+
+            openItem(type, id) {
+                const item = this.getItemById(type, id);
+                if (!item) return;
+
+                const modal = document.getElementById('universalModal');
+                const title = document.getElementById('modalTitle');
+                const sub = document.getElementById('modalSubtitle');
+                const frame = document.getElementById('modalFrame');
+                const dlBtn = document.getElementById('modalDownloadBtn');
+
+                title.innerText = item.title;
+                sub.innerText = item.author || item.speaker || type;
+
+                let src = '';
+                if (type === 'videos') {
+                    // Logic spécifique vidéo pour éviter erreur X-Frame si possible
+                    if (item.link.includes('youtu')) {
+                        src = this.getPreviewUrl(item.link);
+                    } else {
+                        // Fallback drive video
+                        src = item.link.replace('/view', '/preview');
+                    }
+                } else {
+                    // PDF / Docs
+                    src = this.getPreviewUrl(item.driveLink);
+                }
+
+                frame.src = src;
+
+                // Setup bouton download du modal
+                dlBtn.onclick = () => this.downloadItem(type, id);
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden'; // Stop scroll bg
+            },
+
+            closeModal() {
+                const modal = document.getElementById('universalModal');
+                const frame = document.getElementById('modalFrame');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                frame.src = ''; // Stop video/audio
+                document.body.style.overflow = '';
+            },
+
+            downloadItem(type, id) {
+                const item = this.getItemById(type, id);
+                const url = type === 'videos' ? item.link : item.driveLink;
+
+                if (!url) {
+                    this.toast("Lien introuvable");
+                    return;
+                }
+
+                // Essayer d'ouvrir un lien direct
+                let directLink = url;
+                if (url.includes('drive.google.com')) {
+                    const match = url.match(/\/file\/d\/([^\/]+)\//);
+                    if (match && match[1]) {
+                        directLink = `https://drive.google.com/uc?export=download&id=${match[1]}`;
+                    }
+                }
+
+                window.open(directLink, '_blank');
+                this.toast("Téléchargement lancé...");
+            },
+
+            toast(msg) {
+                const el = document.getElementById('toast');
+                const txt = document.getElementById('toastMsg');
+                txt.innerText = msg;
+                el.classList.remove('opacity-0', '-translate-y-20');
+                setTimeout(() => {
+                    el.classList.add('opacity-0', '-translate-y-20');
+                }, 3000);
             }
-        }
+        };
 
-
-        /* ESC modals pour xassidas yi  */
-        document.addEventListener('keydown', (e) => {if (e.key === 'Escape') {closeDocModal(); closeVidModal();} });
-
-        /* delegated clicks for cards: we registered items earlier via buildCard */
-        document.body.addEventListener('click', (e) => {
-            // the delegated handlers above already handle data-uid clicks
-        });
-
-        /* Intersection observer nice reveal */
-        const io = new IntersectionObserver(entries => entries.forEach(en => {if (en.isIntersecting) en.target.classList.add('animate-fadeIn');}), {threshold: 0.12});
-        setTimeout(() => document.querySelectorAll('.rounded-xl').forEach(el => io.observe(el)), 300);
-
-        /* hide mobile nav when clicking outside */
-        document.addEventListener('click', (e) => {
-            const m = document.getElementById('mobileNav');
-            if (!m) return;
-            if (!m.classList.contains('hidden') && !e.target.closest('#mobileNav') && !e.target.closest('#mobileMenuBtn')) m.classList.add('hidden');
-        });
-
-        /* year */
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        /* initial page */
-        const initial = location.hash.replace('#', '') || 'home';
-        if (['home', 'xassidas', 'livres', 'videos'].includes(initial)) showPage(initial); else showPage('home');
+        // Démarrage
+        document.addEventListener('DOMContentLoaded', () => app.init());
 
     </script>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const splash = document.getElementById('splashScreen');
-            const logo = document.getElementById('splashLogo');
-
-            // Effet de zoom sur le logo
-            logo.style.transition = "transform 1.2s ease, opacity 1.2s ease";
-            logo.style.transform = "scale(0.8)";
-            logo.style.opacity = "0";
-
-            // Lance l’animation après un court délai
-            setTimeout(() => {
-                logo.style.transform = "scale(1.2)";
-                logo.style.opacity = "1";
-            }, 200);
-
-            // Fait disparaître l’écran de chargement après 3,5 secondes
-            setTimeout(() => {
-                splash.style.opacity = "0";
-                splash.style.transition = "opacity 0.8s ease";
-                setTimeout(() => splash.style.display = "none", 800);
-                document.documentElement.style.overflow = '';
-            }, 3500);
-        });
-    </script>
-
-
-    <script>
-        // Cible ton header
-        const header = document.querySelector("header");
-
-        // Ajout de la transition fluide pour la disparition du header
-        header.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-
-
-        // Fonction pour cacher la barre
-        function hideHeader() {
-            header.classList.add("hidden");
-        }
-
-        // Fonction pour réafficher la barre
-        function showHeader() {
-            header.classList.remove("hidden");
-        }
-
-        // Exemple : simulation quand tu entres/sors du mode lecture
-        // 👉 tu remplaceras ces deux lignes par ton vrai code plus tard
-        const lireBtns = document.querySelectorAll(".btn-read");
-        const closeBtns = document.querySelectorAll(".modal-bottom-close");
-
-        lireBtns.forEach(btn => btn.addEventListener("click", () => {
-            hideHeader(); // Cache la barre quand on lit
-        }));
-
-        closeBtns.forEach(btn => btn.addEventListener("click", () => {
-            showHeader(); // Réaffiche quand on ferme
-        }));
-    </script>
-
-    <script>
-        // Supprime le bouton X du haut dès que la modale s'ouvre
-        const observer = new MutationObserver(() => {
-            document.querySelectorAll('.modal-close, button[aria-label="Close"], button[title="Fermer"], button.close-modal')
-                .forEach(btn => btn.remove());
-        });
-
-        observer.observe(document.body, {childList: true, subtree: true});
-    </script>
-
-
 </body>
 
 </html>
