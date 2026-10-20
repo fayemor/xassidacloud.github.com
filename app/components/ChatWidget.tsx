@@ -80,6 +80,8 @@ function RichText({ text, onNavigate, dark }: { text: string; onNavigate?: () =>
 
 export default function ChatWidget() {
     const [open, setOpen] = useState(false);
+    const [panelMounted, setPanelMounted] = useState(false); // garde le panneau affiché le temps de l'animation de sortie
+    const [idle, setIdle] = useState(false);                  // bouton discret quand on n'utilise pas le chat
     const [dark, setDark] = useState(false);
     const [messages, setMessages] = useState<Msg[]>([]);
     const [input, setInput] = useState('');
@@ -116,6 +118,28 @@ export default function ChatWidget() {
         const el = listRef.current;
         if (el) el.scrollTop = el.scrollHeight;
     }, [messages, open, busy]);
+
+    /* Laisse l'animation de fermeture se jouer avant de retirer le panneau */
+    useEffect(() => {
+        if (open) { setPanelMounted(true); return; }
+        const t = setTimeout(() => setPanelMounted(false), 220);
+        return () => clearTimeout(t);
+    }, [open]);
+
+    /* Bouton flottant : il s'efface après quelques secondes sans activité et revient dès qu'on bouge, défile ou touche l'écran */
+    useEffect(() => {
+        if (open) { setIdle(false); return; }
+        let timer: ReturnType<typeof setTimeout>;
+        const wake = () => {
+            setIdle(false);
+            clearTimeout(timer);
+            timer = setTimeout(() => setIdle(true), 6000);
+        };
+        wake();
+        const events = ['pointermove', 'pointerdown', 'scroll', 'keydown', 'touchstart'] as const;
+        events.forEach((ev) => window.addEventListener(ev, wake, { passive: true }));
+        return () => { clearTimeout(timer); events.forEach((ev) => window.removeEventListener(ev, wake)); };
+    }, [open]);
 
     /* Focus à l'ouverture, Échap pour fermer */
     useEffect(() => {
@@ -166,7 +190,7 @@ export default function ChatWidget() {
             const reader = res.body.getReader();
             const decoder = new TextDecoder();
             let answer = '';
-            for (;;) {
+            for (; ;) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 answer += decoder.decode(value, { stream: true });
@@ -212,24 +236,35 @@ export default function ChatWidget() {
 
     return (
         <>
+            <style>{`
+        @keyframes xcPop { 0% { opacity: 0; transform: scale(.4); } 70% { opacity: 1; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes xcIn { from { opacity: 0; transform: translateY(18px) scale(.95); } to { opacity: 1; transform: none; } }
+        @keyframes xcOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(14px) scale(.96); } }
+        .xc-pop { animation: xcPop .38s cubic-bezier(.2,.8,.2,1) backwards; }
+        .xc-chat-in { transform-origin: bottom right; animation: xcIn .3s cubic-bezier(.2,.8,.2,1) backwards; }
+        .xc-chat-out { transform-origin: bottom right; animation: xcOut .2s ease-in forwards; pointer-events: none; }
+        @media (prefers-reduced-motion: reduce) { .xc-pop, .xc-chat-in, .xc-chat-out { animation: none; } }
+      `}</style>
+
             {/* BOUTON FLOTTANT */}
             {!open && (
                 <button
                     type="button"
                     onClick={() => setOpen(true)}
+                    onFocus={() => setIdle(false)}
                     aria-label="Ouvrir l'assistant Xassida Cloud"
-                    className="fixed bottom-5 right-5 z-[45] w-14 h-14 rounded-full bg-[#0F3D2E] hover:bg-emerald-800 text-amber-300 border border-amber-400/40 shadow-2xl flex items-center justify-center transition-transform hover:scale-105"
+                    className={`xc-pop fixed bottom-5 right-5 z-[45] w-14 h-14 rounded-full bg-[#0F3D2E] hover:bg-emerald-800 text-amber-300 border border-amber-400/40 shadow-2xl flex items-center justify-center transition-all duration-500 ease-out hover:scale-105 ${idle ? 'opacity-0 translate-x-4 scale-75' : 'opacity-100 translate-x-0 scale-100'}`}
                 >
                     <Icon d={ICONS.chat} c="w-7 h-7" />
                 </button>
             )}
 
             {/* FENÊTRE DE CHAT */}
-            {open && (
+            {(open || panelMounted) && (
                 <div
                     role="dialog"
                     aria-label="Assistant Xassida Cloud"
-                    className={`fixed z-[65] inset-x-3 bottom-3 sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-[400px] h-[min(620px,calc(100dvh-1.5rem))] rounded-3xl border shadow-2xl flex flex-col overflow-hidden ${panel}`}
+                    className={`${open ? 'xc-chat-in' : 'xc-chat-out'} fixed z-[65] inset-x-3 bottom-3 sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-[400px] h-[min(620px,calc(100dvh-1.5rem))] rounded-3xl border shadow-2xl flex flex-col overflow-hidden ${panel}`}
                 >
                     {/* En-tête */}
                     <div className="flex items-center justify-between gap-3 px-5 py-4 bg-gradient-to-br from-[#0F3D2E] to-[#062a1f] text-white">

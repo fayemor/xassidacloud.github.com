@@ -1,4 +1,3 @@
-
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
@@ -7,6 +6,7 @@ import "./globals.css";
 
 import ChatWidget from "./components/ChatWidget";
 import PwaRegister from "./components/PwaRegister";
+import PageTransition from "./components/PageTransition";
 import XassidaIntro from './components/XassidaIntro';
 import XassidaIntroScript from './components/XassidaIntroScript';
 import { siteUrl, SITE_NAME } from "./lib/catalog";
@@ -86,7 +86,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <XassidaIntro />
-        {children}
+        <PageTransition>{children}</PageTransition>
         <ChatWidget />
         <PwaRegister />
         <Analytics />
