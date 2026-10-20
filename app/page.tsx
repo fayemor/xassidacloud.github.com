@@ -17,10 +17,8 @@ import {
   Auth,
   User
 } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, Firestore } from 'firebase/firestore';
 import Link from "next/link";
-import { XASSIDAS } from './lib/catalog';
-import SearchResults from './components/SearchResults';
 
 /* -------------------------------------------------------------------------- */
 /*  CONFIGURATION                                                             */
@@ -53,7 +51,7 @@ function initFirebase(): { auth: Auth | null; db: Firestore | null } {
   }
 }
 
-const { auth } = initFirebase();
+const { auth, db } = initFirebase();
 
 // TODO : renseigner les vrais comptes. Les liens vides ne sont pas affichés.
 const SOCIAL_LINKS = { twitter: '', instagram: '', facebook: '' };
@@ -115,7 +113,7 @@ const DOCUMENTS: DocItem[] = [
 
 
   {
-    id: 'livre-serigne-1',
+    id: 'livre-serigne',
     type: 'livre',
     title: 'Matlabou Fawzeyni',
     cat: 'Xassida Majeur',
@@ -144,6 +142,16 @@ const VIDEOS: VideoItem[] = [
     url: 'https://www.youtube.com/results?search_query=' + encodeURIComponent('exil Cheikh Ahmadou Bamba conférence')
   }
 ];
+
+/* -------------------------------------------------------------------------- */
+/*  STATISTIQUES DES RUBRIQUES (cartes « Explorez les trésors »)              */
+/* -------------------------------------------------------------------------- */
+/* Ces chiffres sont ceux AFFICHÉS par les pages de liste :
+     - xassidas : nombre de lignes du tableau RAW de app/xassidas/page.tsx
+     - livres   : nombre de lignes du tableau RAW de app/livres/page.tsx
+     - vidéos   : total des 4 rubriques (RAW_BY_SECTION) de app/videos/page.tsx
+   Quand vous ajoutez ou retirez un élément dans une de ces pages, mettez à jour le chiffre ici. */
+const STATS = { xassidas: 344, livres: 23, videos: 40 };
 
 // Corrigé avec les vraies routes du projet
 const NAV_ITEMS = [
@@ -209,19 +217,9 @@ type Theme = ReturnType<typeof getTheme>;
 const Icons = {
   Logo: ({ className = "w-8 h-8" }) => (
     <svg className={className} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <mask id="xc-logo-mask">
-          <rect width="36" height="36" fill="white" />
-          <path d="M18 20.75 10.5 18.25v7.5l7.5 2.5zM18 20.75l7.5-2.5v7.5L18 28.25z" fill="black" />
-          <path d="M18 20.75v7.5" stroke="white" strokeWidth="0.6" />
-        </mask>
-      </defs>
-      <g mask="url(#xc-logo-mask)" fill="currentColor">
-        <rect x="2" y="18.75" width="32" height="12" rx="6" />
-        <circle cx="10" cy="19.25" r="7.5" />
-        <circle cx="19.5" cy="15.25" r="10" />
-        <circle cx="28" cy="20.25" r="7" />
-      </g>
+      <circle cx="18" cy="18" r="18" fill="currentColor" fillOpacity="0.15" />
+      <path d="M18 8C12.48 8 8 12.48 8 18C8 23.52 12.48 28 18 28C23.52 28 28 23.52 28 18C28 12.48 23.52 8 18 8ZM18 25.5C13.86 25.5 10.5 22.14 10.5 18C10.5 13.86 13.86 10.5 18 10.5C22.14 10.5 25.5 13.86 25.5 18C25.5 22.14 22.14 25.5 18 25.5Z" fill="currentColor" />
+      <path d="M18 13.5L14.25 18.75H21.75L18 13.5Z" fill="currentColor" />
     </svg>
   ),
   User: ({ className = "w-4 h-4" }) => (
@@ -387,7 +385,8 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [heroError, setHeroError] = useState(false);
-  const [activeSection, setActiveSection] = useState('top');
+  // Page d'accueil : seul l'onglet « Accueil » est surligné, il ne bouge plus au défilement.
+  const activeSection = 'top';
 
   const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -447,22 +446,6 @@ export default function Home() {
       setFavorites(raw ? JSON.parse(raw) : []);
     } catch { setFavorites([]); }
   }, [uid]);
-
-  /* ---- Section active dans la navigation ---- */
-  useEffect(() => {
-    const ids = ['domaines', 'xassidas', 'livres', 'videos'];
-    const elements = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((en) => {
-        if (en.isIntersecting) setActiveSection(en.target.id === 'domaines' ? 'top' : en.target.id);
-      }),
-      { rootMargin: '-30% 0px -60% 0px' }
-    );
-    elements.forEach((el) => observer.observe(el));
-    const onScroll = () => { if (window.scrollY < 200) setActiveSection('top'); };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => { observer.disconnect(); window.removeEventListener('scroll', onScroll); };
-  }, []);
 
   /* ---- Échap ferme la couche la plus haute ---- */
   useEffect(() => {
@@ -651,35 +634,37 @@ export default function Home() {
   const handleReportSubmit = async () => {
     const text = reportText.trim();
     if (!text || !activeReaderItem) return;
+    if (!db) { showToast("Envoi impossible : le service n'est pas configuré."); return; }
     setReportSending(true);
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 40000);
     try {
-      const res = await fetch('/api/report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await Promise.race([
+        addDoc(collection(db, 'reports'), {
           docId: activeReaderItem.id,
           docTitle: activeReaderItem.title,
           message: text,
-          userName: user ? userLabel : null,
-          userEmail: user?.email ?? null,
+          uid,
+          createdAt: serverTimestamp()
         }),
-        signal: controller.signal,
-      });
-      if (!res.ok) throw new Error('send failed');
-      showToast('Merci, votre signalement a bien été envoyé.');
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
+      ]);
+      showToast('Merci, votre signalement a bien été enregistré.');
       setReportModalOpen(false);
       setReportText('');
     } catch {
-      showToast('Envoi impossible pour le moment. Réessayez plus tard.');
+      showToast("Envoi impossible pour le moment. Réessayez plus tard.");
     } finally {
-      clearTimeout(timer);
       setReportSending(false);
     }
   };
 
   /* ---- Données dérivées ---- */
+  const filteredDocuments = useMemo(() => {
+    const q = normalize(searchQuery.trim());
+    if (!q) return [];
+    return DOCUMENTS.filter((d) =>
+      [d.title, d.author, d.cat, d.desc, d.arabic].some((field) => normalize(field).includes(q))
+    );
+  }, [searchQuery]);
 
   const xassidaDocs = DOCUMENTS.filter((d) => d.type === 'xassida');
   const livreDocs = DOCUMENTS.filter((d) => d.type === 'livre');
@@ -850,7 +835,7 @@ export default function Home() {
             {!heroError && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src="/mosque-touba.png"
+                src="/mosque-touba.jpg"
                 alt="Grande Mosquée de Touba"
                 className="w-full h-full object-cover object-center filter brightness-[0.45]"
                 onError={() => setHeroError(true)}
@@ -895,7 +880,16 @@ export default function Home() {
         </section>
 
         {/* RÉSULTATS DE RECHERCHE */}
-        <SearchResults query={searchQuery} dark={darkMode} />
+        {searchQuery.trim() !== '' && (
+          <section id="resultats" aria-live="polite" className="max-w-7xl mx-auto px-4 sm:px-8 py-12 scroll-mt-24">
+            <h2 className="text-xl font-bold font-serif mb-6">Résultats pour « {searchQuery.trim()} » ({filteredDocuments.length})</h2>
+            {filteredDocuments.length === 0 ? (
+              <p className={`text-sm ${t.softMuted}`}>Aucun document ne correspond à votre recherche. Essayez un autre titre ou un nom d’auteur.</p>
+            ) : (
+              renderCards(filteredDocuments)
+            )}
+          </section>
+        )}
 
         {/* FAVORIS */}
         {user && favoriteDocs.length > 0 && (
@@ -912,9 +906,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { title: 'Xassidas', desc: 'Poèmes mystiques de Cheikh Ahmadou Bamba. Lisez et téléchargez.', count: count(xassidaDocs.length, 'texte disponible', 'textes disponibles'), link: '/xassidas', icon: <Icons.Book className="w-8 h-8 text-amber-400" /> },
-              { title: 'Livres & Ouvrages', desc: 'Études islamiques et biographies.', count: count(livreDocs.length, 'livre disponible', 'livres disponibles'), link: '/livres', icon: <Icons.Book className="w-8 h-8 text-amber-400" /> },
-              { title: 'Vidéos & Conférences', desc: 'Revues historiques et prêches à retrouver sur YouTube.', count: count(VIDEOS.length, 'vidéo', 'vidéos'), link: '/videos', icon: <Icons.Video className="w-8 h-8 text-amber-400" /> }
+              { title: 'Xassidas', desc: 'Poèmes mystiques de Cheikh Ahmadou Bamba. Lisez et téléchargez.', count: count(STATS.xassidas, 'texte disponible', 'textes disponibles'), link: '/xassidas', icon: <Icons.Book className="w-8 h-8 text-amber-400" /> },
+              { title: 'Livres & Ouvrages', desc: 'Études islamiques et biographies.', count: count(STATS.livres, 'livre disponible', 'livres disponibles'), link: '/livres', icon: <Icons.Book className="w-8 h-8 text-amber-400" /> },
+              { title: 'Vidéos & Conférences', desc: 'Revues historiques et prêches à retrouver sur YouTube.', count: count(STATS.videos, 'vidéo', 'vidéos'), link: '/videos', icon: <Icons.Video className="w-8 h-8 text-amber-400" /> }
             ].map((item) => (
               <Link
                 href={item.link}
