@@ -42,7 +42,7 @@ const { auth, db } = initFirebase();
 
 const NOT_CONFIGURED_MSG = "Le service de connexion n'est pas configuré. Vérifiez les variables Firebase.";
 const ARABIC_FONT = "'Amiri','Scheherazade New','Noto Naskh Arabic',serif";
-const PAGE_SIZE = 12; // nombre de cartes affichées à la fois (les vidéos sont plus lourdes que les documents)
+const PAGE_SIZE = 6; // nombre de cartes affichées à la fois, dans chaque rubrique
 const AUTHOR = 'Xassida Cloud';
 
 const NAV_ITEMS = [
@@ -150,6 +150,10 @@ const autoThumb = (src: VideoSource) =>
 /*  DONNÉES : AJOUTEZ VOS VIDÉOS ICI (une ligne par vidéo)                    */
 /* -------------------------------------------------------------------------- */
 /*
+  Les vidéos sont rangées PAR RUBRIQUE : ajoutez chaque vidéo dans la liste de sa rubrique
+  (waxtaan, reference, kureel ou rajass). Pour créer une nouvelle rubrique, ajoutez-la dans SECTIONS
+  (plus haut), dans le type SectionId, puis ajoutez sa liste ci-dessous.
+
   Format d'une ligne :
   ['Titre', 'العنوان بالعربية (facultatif)', 'SOURCE', 'id-unique', 'description', 'auteur (facultatif)', 'durée (facultatif)', 'miniature (facultatif)'],
 
@@ -160,61 +164,110 @@ const autoThumb = (src: VideoSource) =>
   ['Mon titre', '', 'https://monsite.com/videos/ma-video.mp4', 'v_exemple4', 'Description…', 'Auteur', '12:30', '/miniatures/ma-video.jpg'],
 
   → La durée et la miniature sont facultatives (détectées automatiquement quand c'est possible).
-  → Le tri alphabétique et les filtres par lettre sont automatiques.
+  → Le tri alphabétique (dans chaque rubrique) et les filtres par lettre sont automatiques.
 
   ⚠ Les 40 lignes ci-dessous sont des EXEMPLES : elles utilisent des vidéos de démonstration publiques
     pour que vous voyiez le rendu. Remplacez simplement la source, le titre et la description.
 */
+/* -------------------------------------------------------------------------- */
+/*  RUBRIQUES (modifiez les noms et descriptions ici)                         */
+/* -------------------------------------------------------------------------- */
+
+type SectionId = 'waxtaan' | 'reference' | 'kureel' | 'rajass';
+
+const SECTIONS: { id: SectionId; label: string; short: string; desc: string }[] = [
+    {
+        id: 'waxtaan',
+        label: 'Waxtaan',
+        short: 'Waxtaan',
+        desc: 'Causeries, conférences et échanges autour de Cheikh Ahmadou Bamba et du patrimoine mouride.'
+    },
+    {
+        id: 'reference',
+        label: 'Référence — Kàddug Mag ñi',
+        short: 'Référence',
+        desc: 'Les voix et les images de référence : récits historiques, documentaires et paroles des anciens.'
+    },
+    {
+        id: 'kureel',
+        label: 'Prestation Kureel',
+        short: 'Prestation Kureel',
+        desc: 'Récitations collectives, zikr et chants des kureel (groupes de disciples).'
+    },
+    {
+        id: 'rajass',
+        label: 'Rajass',
+        short: 'Rajass',
+        desc: 'Récitations et chants poétiques psalmodiés.'
+    }
+];
+
 type Raw = [title: string, arabic: string, source: string, id?: string, desc?: string, author?: string, duration?: string, thumb?: string];
 
 const DEMO_BASE = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/';
 const demo = (file: string) => `${DEMO_BASE}${file}.mp4`;
 
-const RAW: Raw[] = [
-    ['Astahfiroulaha bihi', 'أَسْتَغْفِرُ اللَّهَ بِهِ', demo('BigBuckBunny'), 'v_01', 'Récitation de la prière de demande de pardon et de rémission des péchés.'],
-    ['Jazbul Quloob', 'جَذْبُ الْقُلُوبِ', demo('ElephantsDream'), 'v_02', 'Récitation du célèbre panégyrique dédié au Prophète (PSL).'],
-    ['Midadi', 'مِدَادِي', demo('ForBiggerBlazes'), 'v_03', "Récitation du poème mystique sur l'encre divine et la louange."],
-    ['Mafatikhoul Jinane', 'مَفَاتِيحُ الْجِنَانِ', demo('ForBiggerEscapes'), 'v_04', 'Les clés du paradis, recueil fondamental de prières et de recommandations.'],
-    ['Wadjahtou Wajhiyajah', 'وَجَّهْتُ وَجْهِيَ', demo('ForBiggerFun'), 'v_05', "Prière de soumission totale au Créateur, récitée en chœur."],
-    ['Adjabani Raboussama', 'أَجَابَنِي رَبُّ السَّمَاءِ', demo('ForBiggerJoyrides'), 'v_06', 'Hymne de gratitude divine.'],
-    ['Sindidi', 'صِنْدِيدِي', demo('ForBiggerMeltdowns'), 'v_07', 'Poème épique de bravoure spirituelle et de foi.'],
-    ['Yaqiini Kitaabulaahi', 'يَقِينِي كِتَابُ اللَّهِ', demo('Sintel'), 'v_08', "Poème sur la foi inébranlable dans le Livre d'Allah."],
-    ['Touhfatoul Mutadarihiin', 'تُحْفَةُ الْمُتَضَرِّعِينَ', demo('SubaruOutbackOnStreetAndDirt'), 'v_09', "Le présent offert aux suppliants, prière d'invocation."],
-    ['Matlaboul Fawzeyni', 'مَطْلَبُ الْفَوْزَيْنِ', demo('TearsOfSteel'), 'v_10', 'La quête du bonheur dans les deux mondes.'],
-    ['Achkouroul laha', 'أَشْكُرُ اللَّهَ', demo('VolkswagenGTIReview'), 'v_11', 'Hymne de remerciement au Tout-Puissant.'],
-    ['Al Baraka', 'الْبَرَكَةُ', demo('WeAreGoingOnBullrun'), 'v_12', 'Prière pour attirer la grâce et la bénédiction divines.'],
-    ['Alam Nashrah', 'أَلَمْ نَشْرَحْ', demo('WhatCarCanYouGetForAGrand'), 'v_13', "Méditation et prière basées sur la sourate de l'Ouverture."],
-    ['Al Baaqi', 'الْبَاقِي', demo('BigBuckBunny'), 'v_14', "L'Éternel, invocation des attributs divins de pérennité."],
-    ['Allahul Khariibu', 'اللَّهُ الْقَرِيبُ', demo('ElephantsDream'), 'v_15', "Invocation de la proximité divine."],
-    ['Anta Rabbii', 'أَنْتَ رَبِّي', demo('ForBiggerBlazes'), 'v_16', "Déclaration de foi et d'adoration."],
-    ['Asma-ul-lahi husnaa', 'أَسْمَاءُ اللَّهِ الْحُسْنَى', demo('ForBiggerEscapes'), 'v_17', "Litanie glorifiant les 99 Noms les plus beaux d'Allah."],
-    ['Bouchraa lana', 'بُشْرَى لَنَا', demo('ForBiggerFun'), 'v_18', 'Bonne nouvelle pour nous, poème de réjouissance spirituelle.'],
-    ['Durrussamin', 'الْدُّرُّ الثَّمِينُ', demo('ForBiggerJoyrides'), 'v_19', 'La perle précieuse, joyau de la louange.'],
-    ['Fathoul Ghafar', 'فَتْحُ الْغَفَّارِ', demo('ForBiggerMeltdowns'), 'v_20', "L'ouverture accordée par le Très-Pardonneur."],
-    ['Magal de Touba – Extrait 1', '', demo('Sintel'), 'v_21', 'Images de la grande commémoration annuelle à Touba.'],
-    ['Magal de Touba – Extrait 2', '', demo('SubaruOutbackOnStreetAndDirt'), 'v_22', 'Ambiance et ferveur des pèlerins.'],
-    ['Conférence : la vie de Cheikh Ahmadou Bamba', '', demo('TearsOfSteel'), 'v_23', "Conférence sur le parcours et l'héritage du fondateur du mouridisme."],
-    ['Conférence : les écrits du Cheikh', '', demo('VolkswagenGTIReview'), 'v_24', "Présentation de l'œuvre écrite et de ses grands thèmes."],
-    ['Documentaire : Touba, la ville sainte', '', demo('WeAreGoingOnBullrun'), 'v_25', 'Découverte de la ville de Touba et de son histoire.'],
-    ['Documentaire : la Grande Mosquée de Touba', '', demo('WhatCarCanYouGetForAGrand'), 'v_26', "Visite de la Grande Mosquée et de son architecture."],
-    ['Récitation collective – Daaira', '', demo('BigBuckBunny'), 'v_27', 'Récitation en groupe lors d’une rencontre de daaira.'],
-    ['Zikr du vendredi', '', demo('ElephantsDream'), 'v_28', 'Séance de zikr collective du vendredi.'],
-    ['Causerie : l’éducation spirituelle', '', demo('ForBiggerBlazes'), 'v_29', "Causerie sur l'éducation et le cheminement spirituel."],
-    ['Causerie : la patience et la gratitude', '', demo('ForBiggerEscapes'), 'v_30', 'Enseignements sur la patience (sabr) et la gratitude (shukr).'],
-    ['Cours de xassida : prononciation arabe', '', demo('ForBiggerFun'), 'v_31', 'Apprendre à réciter correctement, lettre par lettre.'],
-    ['Cours de xassida : sens et traduction', '', demo('ForBiggerJoyrides'), 'v_32', 'Explication du sens des vers et de leur traduction.'],
-    ['Maouloud – Ambiance', '', demo('ForBiggerMeltdowns'), 'v_33', 'Images de la célébration de la naissance du Prophète (PSL).'],
-    ['Ziarra – Visite des lieux saints', '', demo('Sintel'), 'v_34', 'Parcours de visite des lieux saints de Touba.'],
-    ['Histoire : l’exil au Gabon', '', demo('SubaruOutbackOnStreetAndDirt'), 'v_35', "Récit de l'épreuve de l'exil au Gabon et de son enseignement."],
-    ['Histoire : l’exil en Mauritanie', '', demo('TearsOfSteel'), 'v_36', "Récit de l'exil en Mauritanie et de ses leçons."],
-    ['Témoignages de disciples', '', demo('VolkswagenGTIReview'), 'v_37', 'Des disciples racontent leur parcours.'],
-    ['Questions-réponses : la pratique du wird', '', demo('WeAreGoingOnBullrun'), 'v_38', 'Réponses aux questions fréquentes sur la pratique quotidienne.'],
-    ['Chant religieux – Extrait 1', '', demo('WhatCarCanYouGetForAGrand'), 'v_39', 'Extrait d’un chant religieux en wolof.'],
-    ['Chant religieux – Extrait 2', '', demo('BigBuckBunny'), 'v_40', 'Deuxième extrait de chant religieux.']
-];
+const RAW_BY_SECTION: Record<SectionId, Raw[]> = {
+    /* ----- Waxtaan : causeries, conférences, échanges ----- */
+    waxtaan: [
+        ['Conférence : la vie de Cheikh Ahmadou Bamba', '', demo('TearsOfSteel'), 'v_23', "Conférence sur le parcours et l'héritage du fondateur du mouridisme."],
+        ['Conférence : les écrits du Cheikh', '', demo('VolkswagenGTIReview'), 'v_24', "Présentation de l'œuvre écrite et de ses grands thèmes."],
+        ['Causerie : l’éducation spirituelle', '', demo('ForBiggerBlazes'), 'v_29', "Causerie sur l'éducation et le cheminement spirituel."],
+        ['Causerie : la patience et la gratitude', '', demo('ForBiggerEscapes'), 'v_30', 'Enseignements sur la patience (sabr) et la gratitude (shukr).'],
+        ['Cours de xassida : prononciation arabe', '', demo('ForBiggerFun'), 'v_31', 'Apprendre à réciter correctement, lettre par lettre.'],
+        ['Cours de xassida : sens et traduction', '', demo('ForBiggerJoyrides'), 'v_32', 'Explication du sens des vers et de leur traduction.'],
+        ['Témoignages de disciples', '', demo('VolkswagenGTIReview'), 'v_37', 'Des disciples racontent leur parcours.'],
+        ['Questions-réponses : la pratique du wird', '', demo('WeAreGoingOnBullrun'), 'v_38', 'Réponses aux questions fréquentes sur la pratique quotidienne.']
+    ],
+
+    /* ----- Référence : documentaires, récits historiques ----- */
+    reference: [
+        ['Magal de Touba – Extrait 1', '', demo('Sintel'), 'v_21', 'Images de la grande commémoration annuelle à Touba.'],
+        ['Magal de Touba – Extrait 2', '', demo('SubaruOutbackOnStreetAndDirt'), 'v_22', 'Ambiance et ferveur des pèlerins.'],
+        ['Documentaire : Touba, la ville sainte', '', demo('WeAreGoingOnBullrun'), 'v_25', 'Découverte de la ville de Touba et de son histoire.'],
+        ['Documentaire : la Grande Mosquée de Touba', '', demo('WhatCarCanYouGetForAGrand'), 'v_26', "Visite de la Grande Mosquée et de son architecture."],
+        ['Maouloud – Ambiance', '', demo('ForBiggerMeltdowns'), 'v_33', 'Images de la célébration de la naissance du Prophète (PSL).'],
+        ['Ziarra – Visite des lieux saints', '', demo('Sintel'), 'v_34', 'Parcours de visite des lieux saints de Touba.'],
+        ['Histoire : l’exil au Gabon', '', demo('SubaruOutbackOnStreetAndDirt'), 'v_35', "Récit de l'épreuve de l'exil au Gabon et de son enseignement."],
+        ['Histoire : l’exil en Mauritanie', '', demo('TearsOfSteel'), 'v_36', "Récit de l'exil en Mauritanie et de ses leçons."]
+    ],
+
+    /* ----- Prestation Kureel : récitations collectives, zikr, chants ----- */
+    kureel: [
+        ['Jazbul Quloob', 'جَذْبُ الْقُلُوبِ', demo('ElephantsDream'), 'v_02', 'Récitation du célèbre panégyrique dédié au Prophète (PSL).'],
+        ['Midadi', 'مِدَادِي', demo('ForBiggerBlazes'), 'v_03', "Récitation du poème mystique sur l'encre divine et la louange."],
+        ['Mafatikhoul Jinane', 'مَفَاتِيحُ الْجِنَانِ', demo('ForBiggerEscapes'), 'v_04', 'Les clés du paradis, recueil fondamental de prières et de recommandations.'],
+        ['Wadjahtou Wajhiyajah', 'وَجَّهْتُ وَجْهِيَ', demo('ForBiggerFun'), 'v_05', "Prière de soumission totale au Créateur, récitée en chœur."],
+        ['Durrussamin', 'الْدُّرُّ الثَّمِينُ', demo('ForBiggerJoyrides'), 'v_19', 'La perle précieuse, joyau de la louange.'],
+        ['Fathoul Ghafar', 'فَتْحُ الْغَفَّارِ', demo('ForBiggerMeltdowns'), 'v_20', "L'ouverture accordée par le Très-Pardonneur."],
+        ['Récitation collective – Daaira', '', demo('BigBuckBunny'), 'v_27', 'Récitation en groupe lors d’une rencontre de daaira.'],
+        ['Zikr du vendredi', '', demo('ElephantsDream'), 'v_28', 'Séance de zikr collective du vendredi.'],
+        ['Chant religieux – Extrait 1', '', demo('WhatCarCanYouGetForAGrand'), 'v_39', 'Extrait d’un chant religieux en wolof.'],
+        ['Chant religieux – Extrait 2', '', demo('BigBuckBunny'), 'v_40', 'Deuxième extrait de chant religieux.']
+    ],
+
+    /* ----- Rajass ----- */
+    rajass: [
+        ['Astahfiroulaha bihi', 'أَسْتَغْفِرُ اللَّهَ بِهِ', demo('BigBuckBunny'), 'v_01', 'Récitation de la prière de demande de pardon et de rémission des péchés.'],
+        ['Adjabani Raboussama', 'أَجَابَنِي رَبُّ السَّمَاءِ', demo('ForBiggerJoyrides'), 'v_06', 'Hymne de gratitude divine.'],
+        ['Sindidi', 'صِنْدِيدِي', demo('ForBiggerMeltdowns'), 'v_07', 'Poème épique de bravoure spirituelle et de foi.'],
+        ['Yaqiini Kitaabulaahi', 'يَقِينِي كِتَابُ اللَّهِ', demo('Sintel'), 'v_08', "Poème sur la foi inébranlable dans le Livre d'Allah."],
+        ['Touhfatoul Mutadarihiin', 'تُحْفَةُ الْمُتَضَرِّعِينَ', demo('SubaruOutbackOnStreetAndDirt'), 'v_09', "Le présent offert aux suppliants, prière d'invocation."],
+        ['Matlaboul Fawzeyni', 'مَطْلَبُ الْفَوْزَيْنِ', demo('TearsOfSteel'), 'v_10', 'La quête du bonheur dans les deux mondes.'],
+        ['Achkouroul laha', 'أَشْكُرُ اللَّهَ', demo('VolkswagenGTIReview'), 'v_11', 'Hymne de remerciement au Tout-Puissant.'],
+        ['Al Baraka', 'الْبَرَكَةُ', demo('WeAreGoingOnBullrun'), 'v_12', 'Prière pour attirer la grâce et la bénédiction divines.'],
+        ['Alam Nashrah', 'أَلَمْ نَشْرَحْ', demo('WhatCarCanYouGetForAGrand'), 'v_13', "Méditation et prière basées sur la sourate de l'Ouverture."],
+        ['Al Baaqi', 'الْبَاقِي', demo('BigBuckBunny'), 'v_14', "L'Éternel, invocation des attributs divins de pérennité."],
+        ['Allahul Khariibu', 'اللَّهُ الْقَرِيبُ', demo('ElephantsDream'), 'v_15', "Invocation de la proximité divine."],
+        ['Anta Rabbii', 'أَنْتَ رَبِّي', demo('ForBiggerBlazes'), 'v_16', "Déclaration de foi et d'adoration."],
+        ['Asma-ul-lahi husnaa', 'أَسْمَاءُ اللَّهِ الْحُسْنَى', demo('ForBiggerEscapes'), 'v_17', "Litanie glorifiant les 99 Noms les plus beaux d'Allah."],
+        ['Bouchraa lana', 'بُشْرَى لَنَا', demo('ForBiggerFun'), 'v_18', 'Bonne nouvelle pour nous, poème de réjouissance spirituelle.']
+    ]
+};
 
 interface VideoItem {
     id: string;
+    section: SectionId;
     title: string;
     arabic: string;
     author: string;
@@ -227,7 +280,7 @@ interface VideoItem {
 }
 
 const seenIds = new Set<string>();
-const VIDEOS: VideoItem[] = RAW.map(([rawTitle, arabic, rawSource, idOverride, descOverride, authorOverride, duration, thumbOverride]) => {
+const VIDEOS: VideoItem[] = SECTIONS.flatMap((sec) => RAW_BY_SECTION[sec.id].map(([rawTitle, arabic, rawSource, idOverride, descOverride, authorOverride, duration, thumbOverride]) => {
     const title = rawTitle.trim();
     const author = authorOverride || AUTHOR;
     const base = idOverride || slugify(title) || 'video';
@@ -238,13 +291,15 @@ const VIDEOS: VideoItem[] = RAW.map(([rawTitle, arabic, rawSource, idOverride, d
     const desc = descOverride || `Vidéo de ${author}, à regarder directement en ligne.`;
     const source = parseSource(rawSource);
     return {
-        id, title, arabic: arabic || '', author, desc, source,
+        id, section: sec.id, title, arabic: arabic || '', author, desc, source,
         thumb: thumbOverride || (source ? autoThumb(source) : undefined),
         duration: duration || undefined,
         letter: normalize(title).replace(/[^a-z]/g, '').charAt(0).toUpperCase() || '#',
         hay: normalize([title, arabic, author, desc].join(' '))
     };
-}).sort((a, b) => a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }));
+})).sort((a, b) => a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }));
+
+const SECTION_COUNT = Object.fromEntries(SECTIONS.map((sec) => [sec.id, VIDEOS.filter((v) => v.section === sec.id).length])) as Record<SectionId, number>;
 
 const LETTERS = Array.from(new Set(VIDEOS.map((v) => v.letter))).sort();
 
@@ -439,7 +494,8 @@ export default function VideosPage() {
     const [query, setQuery] = useState('');
     const [letter, setLetter] = useState('');
     const [onlyFavs, setOnlyFavs] = useState(false);
-    const [visible, setVisible] = useState(PAGE_SIZE);
+    const [section, setSection] = useState<SectionId | ''>('');
+    const [visibleMap, setVisibleMap] = useState<Record<string, number>>({}); // nombre de cartes affichées par rubrique
 
     const [user, setUser] = useState<User | null>(null);
     const [displayName, setDisplayName] = useState<string | null>(null);
@@ -496,8 +552,8 @@ export default function VideosPage() {
         } catch { setFavorites([]); }
     }, [uid]);
 
-    /* ---- Retour en haut de liste quand le filtre change ---- */
-    useEffect(() => { setVisible(PAGE_SIZE); }, [query, letter, onlyFavs]);
+    /* ---- Retour au nombre de cartes par défaut quand un filtre change ---- */
+    useEffect(() => { setVisibleMap({}); }, [query, letter, onlyFavs, section]);
 
     /* ---- Échap ferme la couche la plus haute ---- */
     useEffect(() => {
@@ -643,13 +699,21 @@ export default function VideosPage() {
         );
     }, [query, letter, onlyFavs, favorites]);
 
-    const shown = filtered.slice(0, visible);
-    const availableCount = VIDEOS.filter((v) => v.source).length;
+    const bySection = useMemo(
+        () => Object.fromEntries(SECTIONS.map((sec) => [sec.id, filtered.filter((v) => v.section === sec.id)])) as Record<SectionId, VideoItem[]>,
+        [filtered]
+    );
     const hasFilter = Boolean(query.trim() || letter || onlyFavs);
+    // Quand une recherche ou un filtre est actif, on masque les rubriques vides
+    const sectionsToShow = SECTIONS.filter((sec) => (!section || sec.id === section) && (!hasFilter || bySection[sec.id].length > 0));
+    const totalShown = sectionsToShow.reduce((n, sec) => n + bySection[sec.id].length, 0);
+    const availableCount = VIDEOS.filter((v) => v.source).length;
     const resetFilters = () => { setQuery(''); setLetter(''); setOnlyFavs(false); };
 
     const inputClass = `w-full px-4 py-3 rounded-2xl border text-xs outline-none transition-all ${t.input}`;
     const labelClass = `block text-[11px] font-semibold mb-1 uppercase tracking-wider ${t.accent}`;
+    const sectionBtn = (active: boolean) =>
+        `shrink-0 h-9 px-4 rounded-full text-xs font-semibold transition-colors flex items-center gap-2 ${active ? 'bg-amber-400 text-[#0F3D2E] shadow-md' : `${t.chip} ${t.muted}`}`;
     const letterBtn = (active: boolean) =>
         `shrink-0 min-w-9 h-9 px-3 rounded-full text-xs font-semibold transition-colors ${active ? 'bg-[#0F3D2E] text-amber-300 shadow-md' : `${t.chip} ${t.muted}`}`;
 
@@ -780,7 +844,7 @@ export default function VideosPage() {
                         </div>
                         <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-serif drop-shadow-md">Vidéos</h1>
                         <p className="text-emerald-50 text-sm sm:text-base max-w-xl mx-auto font-light leading-relaxed">
-                            Regardez chaque vidéo directement sur le site : récitations, conférences, documentaires et causeries. Un problème avec une vidéo ? Signalez-le depuis le lecteur.
+                            Regardez chaque vidéo directement sur le site, classée par rubrique : Waxtaan, Référence, Prestation Kureel et Rajass. Un problème avec une vidéo ? Signalez-le depuis le lecteur.
                         </p>
                     </div>
                 </section>
@@ -823,6 +887,17 @@ export default function VideosPage() {
                             </button>
                         </div>
 
+                        <div className="flex gap-1.5 overflow-x-auto pb-1" role="group" aria-label="Filtrer par rubrique">
+                            <button type="button" onClick={() => setSection('')} aria-pressed={section === ''} className={sectionBtn(section === '')}>
+                                Toutes <span className="opacity-70">{VIDEOS.length}</span>
+                            </button>
+                            {SECTIONS.map((sec) => (
+                                <button key={sec.id} type="button" onClick={() => setSection(section === sec.id ? '' : sec.id)} aria-pressed={section === sec.id} className={sectionBtn(section === sec.id)}>
+                                    {sec.short} <span className="opacity-70">{SECTION_COUNT[sec.id]}</span>
+                                </button>
+                            ))}
+                        </div>
+
                         <div className="flex gap-1.5 overflow-x-auto pb-1" role="group" aria-label="Filtrer par lettre">
                             <button type="button" onClick={() => setLetter('')} aria-pressed={letter === ''} className={letterBtn(letter === '')}>Toutes</button>
                             {LETTERS.map((l) => (
@@ -832,56 +907,80 @@ export default function VideosPage() {
                     </div>
                 </div>
 
-                {/* LISTE */}
+                {/* LISTE PAR RUBRIQUE */}
                 <section className="max-w-7xl mx-auto px-4 sm:px-8 py-12 scroll-mt-40">
                     <p aria-live="polite" className={`text-xs mb-8 ${t.softMuted}`}>
-                        {filtered.length} vidéo{filtered.length > 1 ? 's' : ''}
+                        {totalShown} vidéo{totalShown > 1 ? 's' : ''}
+                        {section && <> · rubrique {SECTIONS.find((sec) => sec.id === section)?.short}</>}
                         {query.trim() && <> pour « {query.trim()} »</>}
                         {letter && <> · lettre {letter}</>}
                         {onlyFavs && <> · dans vos favoris</>}
                     </p>
 
-                    {filtered.length === 0 ? (
+                    {hasFilter && totalShown === 0 ? (
                         <div className="text-center py-16 space-y-4">
                             <p className={`text-sm ${t.muted}`}>
                                 {onlyFavs && !query.trim() && !letter
                                     ? 'Vous n’avez pas encore de favori. Touchez le cœur d’une carte pour en ajouter.'
                                     : 'Aucune vidéo ne correspond à votre recherche. Essayez un autre titre ou retirez un filtre.'}
                             </p>
-                            {hasFilter && (
-                                <button type="button" onClick={resetFilters} className="bg-[#0F3D2E] hover:bg-emerald-800 text-amber-300 font-semibold px-6 py-3 rounded-xl text-xs shadow-md transition-colors">
-                                    Réinitialiser les filtres
-                                </button>
-                            )}
+                            <button type="button" onClick={resetFilters} className="bg-[#0F3D2E] hover:bg-emerald-800 text-amber-300 font-semibold px-6 py-3 rounded-xl text-xs shadow-md transition-colors">
+                                Réinitialiser les filtres
+                            </button>
                         </div>
                     ) : (
-                        <>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                {shown.map((video) => (
-                                    <VideoCard
-                                        key={video.id}
-                                        video={video}
-                                        theme={t}
-                                        isFav={favorites.includes(video.id)}
-                                        onToggleFav={() => toggleFavorite(video.id)}
-                                        onWatch={() => setActiveVideo(video)}
-                                    />
-                                ))}
-                            </div>
+                        <div className="space-y-16">
+                            {sectionsToShow.map((sec) => {
+                                const items = bySection[sec.id];
+                                const limit = visibleMap[sec.id] ?? PAGE_SIZE;
+                                const shown = items.slice(0, limit);
+                                return (
+                                    <section key={sec.id} id={`rubrique-${sec.id}`} aria-labelledby={`titre-${sec.id}`} className="scroll-mt-48">
+                                        <header className="mb-6 flex flex-wrap items-end justify-between gap-3 pb-4 border-b border-gray-500/20">
+                                            <div>
+                                                <h2 id={`titre-${sec.id}`} className="text-2xl sm:text-3xl font-bold font-serif">{sec.label}</h2>
+                                                <p className={`text-xs sm:text-sm mt-1 max-w-2xl ${t.muted}`}>{sec.desc}</p>
+                                            </div>
+                                            <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/20 ${t.accent}`}>
+                                                {items.length} vidéo{items.length > 1 ? 's' : ''}
+                                            </span>
+                                        </header>
 
-                            {filtered.length > shown.length && (
-                                <div className="text-center mt-12 space-y-3">
-                                    <p className={`text-xs ${t.softMuted}`}>{shown.length} sur {filtered.length} affichées</p>
-                                    <button
-                                        type="button"
-                                        onClick={() => setVisible((v) => v + PAGE_SIZE)}
-                                        className="bg-amber-400 hover:bg-amber-300 text-[#0F3D2E] font-bold px-8 py-3.5 rounded-xl text-xs shadow-md transition-colors"
-                                    >
-                                        Afficher {Math.min(PAGE_SIZE, filtered.length - shown.length)} de plus
-                                    </button>
-                                </div>
-                            )}
-                        </>
+                                        {items.length === 0 ? (
+                                            <p className={`text-sm ${t.softMuted}`}>Aucune vidéo dans cette rubrique pour le moment.</p>
+                                        ) : (
+                                            <>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                                    {shown.map((video) => (
+                                                        <VideoCard
+                                                            key={video.id}
+                                                            video={video}
+                                                            theme={t}
+                                                            isFav={favorites.includes(video.id)}
+                                                            onToggleFav={() => toggleFavorite(video.id)}
+                                                            onWatch={() => setActiveVideo(video)}
+                                                        />
+                                                    ))}
+                                                </div>
+
+                                                {items.length > shown.length && (
+                                                    <div className="text-center mt-10 space-y-3">
+                                                        <p className={`text-xs ${t.softMuted}`}>{shown.length} sur {items.length} affichées</p>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setVisibleMap((m) => ({ ...m, [sec.id]: limit + PAGE_SIZE }))}
+                                                            className="bg-amber-400 hover:bg-amber-300 text-[#0F3D2E] font-bold px-8 py-3.5 rounded-xl text-xs shadow-md transition-colors"
+                                                        >
+                                                            Afficher {Math.min(PAGE_SIZE, items.length - shown.length)} de plus
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </section>
+                                );
+                            })}
+                        </div>
                     )}
                 </section>
             </main>
