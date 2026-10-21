@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import {
   getAuth,
@@ -17,8 +17,10 @@ import {
   Auth,
   User
 } from 'firebase/auth';
-import { getFirestore, collection, addDoc, serverTimestamp, Firestore } from 'firebase/firestore';
+import { getFirestore, Firestore } from 'firebase/firestore';
 import Link from "next/link";
+import { sendReport } from '@/lib/sendReport';
+import SearchResults from './components/SearchResults';
 
 /* -------------------------------------------------------------------------- */
 /*  CONFIGURATION                                                             */
@@ -51,7 +53,7 @@ function initFirebase(): { auth: Auth | null; db: Firestore | null } {
   }
 }
 
-const { auth, db } = initFirebase();
+const { auth } = initFirebase();
 
 // TODO : renseigner les vrais comptes. Les liens vides ne sont pas affichés.
 const SOCIAL_LINKS = { twitter: '', instagram: '', facebook: '' };
@@ -143,14 +145,8 @@ const VIDEOS: VideoItem[] = [
   }
 ];
 
-/* -------------------------------------------------------------------------- */
-/*  STATISTIQUES DES RUBRIQUES (cartes « Explorez les trésors »)              */
-/* -------------------------------------------------------------------------- */
-/* Ces chiffres sont ceux AFFICHÉS par les pages de liste :
-     - xassidas : nombre de lignes du tableau RAW de app/xassidas/page.tsx
-     - livres   : nombre de lignes du tableau RAW de app/livres/page.tsx
-     - vidéos   : total des 4 rubriques (RAW_BY_SECTION) de app/videos/page.tsx
-   Quand vous ajoutez ou retirez un élément dans une de ces pages, mettez à jour le chiffre ici. */
+/* Chiffres des cartes « Domaines d'étude » = ceux affichés par les pages /xassidas, /livres et /videos.
+   Mettez-les à jour quand vous ajoutez ou retirez un élément dans une de ces pages. */
 const STATS = { xassidas: 344, livres: 23, videos: 40 };
 
 // Corrigé avec les vraies routes du projet
@@ -216,10 +212,20 @@ type Theme = ReturnType<typeof getTheme>;
 
 const Icons = {
   Logo: ({ className = "w-8 h-8" }) => (
-    <svg className={className} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <circle cx="18" cy="18" r="18" fill="currentColor" fillOpacity="0.15" />
-      <path d="M18 8C12.48 8 8 12.48 8 18C8 23.52 12.48 28 18 28C23.52 28 28 23.52 28 18C28 12.48 23.52 8 18 8ZM18 25.5C13.86 25.5 10.5 22.14 10.5 18C10.5 13.86 13.86 10.5 18 10.5C22.14 10.5 25.5 13.86 25.5 18C25.5 22.14 22.14 25.5 18 25.5Z" fill="currentColor" />
-      <path d="M18 13.5L14.25 18.75H21.75L18 13.5Z" fill="currentColor" />
+    <svg className={className} viewBox="0 0 36 36" fill="none" aria-hidden="true">
+      <defs>
+        <mask id="xc-logo-mask">
+          <rect width="36" height="36" fill="white" />
+          <path d="M18 20.75 10.5 18.25v7.5l7.5 2.5zM18 20.75l7.5-2.5v7.5L18 28.25z" fill="black" />
+          <path d="M18 20.75v7.5" stroke="white" strokeWidth="0.6" />
+        </mask>
+      </defs>
+      <g mask="url(#xc-logo-mask)" fill="currentColor">
+        <rect x="2" y="18.75" width="32" height="12" rx="6" />
+        <circle cx="10" cy="19.25" r="7.5" />
+        <circle cx="19.5" cy="15.25" r="10" />
+        <circle cx="28" cy="20.25" r="7" />
+      </g>
     </svg>
   ),
   User: ({ className = "w-4 h-4" }) => (
@@ -385,8 +391,7 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [heroError, setHeroError] = useState(false);
-  // Page d'accueil : seul l'onglet « Accueil » est surligné, il ne bouge plus au défilement.
-  const activeSection = 'top';
+  const activeSection = 'top'; // l'onglet « Accueil » reste surligné, il ne bouge plus au défilement
 
   const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -634,38 +639,25 @@ export default function Home() {
   const handleReportSubmit = async () => {
     const text = reportText.trim();
     if (!text || !activeReaderItem) return;
-    if (!db) { showToast("Envoi impossible : le service n'est pas configuré."); return; }
     setReportSending(true);
-    try {
-      await Promise.race([
-        addDoc(collection(db, 'reports'), {
-          docId: activeReaderItem.id,
-          docTitle: activeReaderItem.title,
-          message: text,
-          uid,
-          createdAt: serverTimestamp()
-        }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
-      ]);
-      showToast('Merci, votre signalement a bien été enregistré.');
+    const ok = await sendReport({
+      docId: activeReaderItem.id,
+      docTitle: activeReaderItem.title,
+      message: text,
+      userName: user ? userLabel : null,
+      userEmail: user?.email ?? null,
+    });
+    setReportSending(false);
+    if (ok) {
+      showToast('Merci, votre signalement a bien été envoyé.');
       setReportModalOpen(false);
       setReportText('');
-    } catch {
-      showToast("Envoi impossible pour le moment. Réessayez plus tard.");
-    } finally {
-      setReportSending(false);
+    } else {
+      showToast('Envoi impossible pour le moment. Réessayez plus tard.');
     }
   };
 
   /* ---- Données dérivées ---- */
-  const filteredDocuments = useMemo(() => {
-    const q = normalize(searchQuery.trim());
-    if (!q) return [];
-    return DOCUMENTS.filter((d) =>
-      [d.title, d.author, d.cat, d.desc, d.arabic].some((field) => normalize(field).includes(q))
-    );
-  }, [searchQuery]);
-
   const xassidaDocs = DOCUMENTS.filter((d) => d.type === 'xassida');
   const livreDocs = DOCUMENTS.filter((d) => d.type === 'livre');
   const favoriteDocs = DOCUMENTS.filter((d) => favorites.includes(d.id));
@@ -879,17 +871,8 @@ export default function Home() {
           <div className={`absolute bottom-0 left-0 right-0 h-16 z-20 [mask-image:radial-gradient(ellipse_at_top,transparent_50%,black_50%)] ${t.pageBg}`}></div>
         </section>
 
-        {/* RÉSULTATS DE RECHERCHE */}
-        {searchQuery.trim() !== '' && (
-          <section id="resultats" aria-live="polite" className="max-w-7xl mx-auto px-4 sm:px-8 py-12 scroll-mt-24">
-            <h2 className="text-xl font-bold font-serif mb-6">Résultats pour « {searchQuery.trim()} » ({filteredDocuments.length})</h2>
-            {filteredDocuments.length === 0 ? (
-              <p className={`text-sm ${t.softMuted}`}>Aucun document ne correspond à votre recherche. Essayez un autre titre ou un nom d’auteur.</p>
-            ) : (
-              renderCards(filteredDocuments)
-            )}
-          </section>
-        )}
+        {/* RÉSULTATS DE RECHERCHE (xassidas + livres du catalogue) */}
+        <SearchResults query={searchQuery} dark={darkMode} />
 
         {/* FAVORIS */}
         {user && favoriteDocs.length > 0 && (

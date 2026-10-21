@@ -68,8 +68,9 @@ export default function PageTransition({ children }: { children: React.ReactNode
                 setTimeout(() => { setLoading(false); setFailed(false); }, 4000);
             }, GIVE_UP_MS);
         };
-        document.addEventListener('click', onClick);
-        return () => document.removeEventListener('click', onClick);
+        // Phase de capture : notre code passe AVANT le <Link> de Next.js, sinon celui-ci navigue déjà et notre écouteur ne voit rien
+        document.addEventListener('click', onClick, true);
+        return () => document.removeEventListener('click', onClick, true);
     }, [router]);
 
     return (
