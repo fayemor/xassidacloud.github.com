@@ -827,7 +827,7 @@ export default function Home() {
             {!heroError && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src="/mosque-touba.jpg"
+                src="/mosque-touba.png"
                 alt="Grande Mosquée de Touba"
                 className="w-full h-full object-cover object-center filter brightness-[0.45]"
                 onError={() => setHeroError(true)}
