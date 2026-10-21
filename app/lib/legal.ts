@@ -8,7 +8,7 @@
 export const EDITOR_NAME = 'l’équipe de Xassida Cloud';
 
 /** Adresse email où les visiteurs peuvent vous écrire (droits sur les données, signalement de contenu…). */
-export const CONTACT_EMAIL = 'contact@xassidacloud.com';
+export const CONTACT_EMAIL = 'xassidacloud@gmail.com';
 
 /** Pays dont le droit s'applique. */
 export const COUNTRY = 'Sénégal';
