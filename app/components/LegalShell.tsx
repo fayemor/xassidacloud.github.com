@@ -101,7 +101,7 @@ export default function LegalShell({ title, updated, children }: { title: string
 
             <footer className={`border-t py-8 mt-auto ${dark ? 'bg-[#020e0a] border-emerald-900/40 text-gray-400' : 'bg-[#0F3D2E] border-emerald-900/40 text-emerald-100'}`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] font-medium">
-                    <p>© {new Date().getFullYear()} Xassida Cloud. Tous droits réservés.</p>
+                    <p>© {new Date().getFullYear()} Xassida Cloud. Version 3.0 Tous droits réservés.</p>
                     <div className="flex gap-6">
                         <Link href="/conditions" className="hover:text-amber-300 transition-colors">Conditions d’utilisation</Link>
                         <Link href="/confidentialite" className="hover:text-amber-300 transition-colors">Politique de confidentialité</Link>

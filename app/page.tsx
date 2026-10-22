@@ -89,6 +89,7 @@ interface VideoItem {
 }
 
 const DOCUMENTS: DocItem[] = [
+  // SECTION XASSIDAS
   {
     id: 'matlabou',
     type: 'xassida',
@@ -102,7 +103,19 @@ const DOCUMENTS: DocItem[] = [
   },
 
   {
-    id: 'livre-serigne',
+    id: 'matlabou1',
+    type: 'xassida',
+    title: 'Matlabou Fawzeyni',
+    cat: 'Xassida Majeur',
+    author: 'Cheikh Ahmadou Bamba',
+    driveUrl: 'https://drive.google.com/file/d/1qP6z31dCZeDiBVYguCuk-XBOV3toonPn/view',
+    arabic: 'مَطْلَبُ الْفَوْزَيْنِ',
+    desc: 'Le viatique des deux mondes, panégyrique fondamental pour la quête de l’agrément divin.',
+    verified: true,
+  },
+
+  {
+    id: 'livre-serigne1',
     type: 'xassida',
     title: 'Matlabou Fawzeyni',
     cat: 'Xassida Majeur',
@@ -114,8 +127,11 @@ const DOCUMENTS: DocItem[] = [
   },
 
 
+  // SECTION LIVRES
+
+
   {
-    id: 'livre-serigne',
+    id: 'livre1',
     type: 'livre',
     title: 'Matlabou Fawzeyni',
     cat: 'Xassida Majeur',
@@ -125,6 +141,30 @@ const DOCUMENTS: DocItem[] = [
     desc: 'Le viatique des deux mondes, panégyrique fondamental pour la quête de l’agrément divin.',
     verified: true,
   },
+
+  {
+    id: 'livre2',
+    type: 'livre',
+    title: 'Matlabou Fawzeyni',
+    cat: 'Xassida Majeur',
+    author: 'Cheikh Ahmadou Bamba',
+    driveUrl: 'https://drive.google.com/file/d/1qP6z31dCZeDiBVYguCuk-XBOV3toonPn/view',
+    arabic: 'مَطْلَبُ الْفَوْزَيْنِ',
+    desc: 'Le viatique des deux mondes, panégyrique fondamental pour la quête de l’agrément divin.',
+    verified: true,
+  },
+
+  {
+    id: 'livre3',
+    type: 'livre',
+    title: 'Matlabou Fawzeyni',
+    cat: 'Xassida Majeur',
+    author: 'Cheikh Ahmadou Bamba',
+    driveUrl: 'https://drive.google.com/file/d/1qP6z31dCZeDiBVYguCuk-XBOV3toonPn/view',
+    arabic: 'مَطْلَبُ الْفَوْزَيْنِ',
+    desc: 'Le viatique des deux mondes, panégyrique fondamental pour la quête de l’agrément divin.',
+    verified: true,
+  }
 
 
 ];
@@ -340,7 +380,7 @@ function DocCard({ doc, theme, isFav, onToggleFav, onRead, onDownload }: {
       <div className="space-y-4">
         <div className="flex justify-between items-start gap-3">
           <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-amber-400/20 ${theme.accent}`}>
-            {doc.verified ? 'Texte vérifié' : 'Extrait à vérifier'}
+            {doc.verified ? 'Xassida' : 'Extrait à vérifier'}
           </span>
           <span dir="rtl" lang="ar" className={`text-lg leading-snug ${theme.accent}`} style={{ fontFamily: ARABIC_FONT }}>{doc.arabic}</span>
         </div>
@@ -889,9 +929,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { title: 'Xassidas', desc: 'Poèmes mystiques de Cheikh Ahmadou Bamba. Lisez et téléchargez.', count: count(STATS.xassidas, 'texte disponible', 'textes disponibles'), link: '/xassidas', icon: <Icons.Book className="w-8 h-8 text-amber-400" /> },
+              { title: 'Xassidas', desc: 'Poèmes de Cheikh Ahmadou Bamba.', count: count(STATS.xassidas, 'texte disponible', 'Xassidas disponibles'), link: '/xassidas', icon: <Icons.Book className="w-8 h-8 text-amber-400" /> },
               { title: 'Livres & Ouvrages', desc: 'Études islamiques et biographies.', count: count(STATS.livres, 'livre disponible', 'livres disponibles'), link: '/livres', icon: <Icons.Book className="w-8 h-8 text-amber-400" /> },
-              { title: 'Vidéos & Conférences', desc: 'Revues historiques et prêches à retrouver sur YouTube.', count: count(STATS.videos, 'vidéo', 'vidéos'), link: '/videos', icon: <Icons.Video className="w-8 h-8 text-amber-400" /> }
+              { title: 'Videos', desc: 'Kourel, Rajass, Causerie, Njagum Mag gni etc', count: count(STATS.videos, 'vidéo', 'vidéos disponibles'), link: '/videos', icon: <Icons.Video className="w-8 h-8 text-amber-400" /> }
             ].map((item) => (
               <Link
                 href={item.link}
@@ -949,7 +989,7 @@ export default function Home() {
                   </div>
                   <h3 className="text-lg font-bold font-serif mb-1">{v.title}</h3>
                   <p className={`text-xs mb-3 ${t.softMuted}`}>{v.desc}</p>
-                  <span className={`text-xs font-semibold ${t.accent}`}>Rechercher sur YouTube (nouvel onglet)</span>
+                  <span className={`text-xs font-semibold ${t.accent}`}></span>
                 </a>
               ))}
             </div>
@@ -1280,7 +1320,7 @@ export default function Home() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 border-t border-emerald-900/40 flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] font-medium text-emerald-200/70">
-          <p>© {new Date().getFullYear()} Xassida Cloud. Tous droits réservés.</p>
+          <p>© {new Date().getFullYear()} Xassida Cloud. <strong>Version 3.0</strong> Tous droits réservés.</p>
           <div className="flex gap-6">
             {/* Remplacés ici par <Link> */}
             <Link href="/conditions" className="hover:text-amber-300 transition-colors">Conditions d’utilisation</Link>

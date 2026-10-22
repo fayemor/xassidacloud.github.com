@@ -563,7 +563,7 @@ function DocCard({ doc, theme, isFav, onToggleFav, onRead, onDownload }: {
             <div className="space-y-4">
                 <div className="flex justify-between items-start gap-3">
                     <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-amber-400/20 ${theme.accent}`}>
-                        {ok ? 'Texte vérifié' : 'Bientôt disponible'}
+                        {ok ? 'Xassida' : 'Bientôt disponible'}
                     </span>
                     <span dir="rtl" lang="ar" className={`text-lg leading-snug ${theme.accent}`} style={{ fontFamily: ARABIC_FONT }}>{doc.arabic}</span>
                 </div>
@@ -1257,7 +1257,7 @@ export default function XassidasPage() {
                     </ul>
                 </div>
                 <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-8 pt-8 border-t border-emerald-900/40 flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] font-medium text-emerald-200/70">
-                    <p>© {new Date().getFullYear()} Xassida Cloud. Tous droits réservés.</p>
+                    <p>© {new Date().getFullYear()} Xassida Cloud. Version 3.0 Tous droits réservés.</p>
                     <div className="flex gap-6">
                         <Link href="/conditions" className="hover:text-amber-300 transition-colors">Conditions d’utilisation</Link>
                         <Link href="/confidentialite" className="hover:text-amber-300 transition-colors">Politique de confidentialité</Link>

@@ -4,7 +4,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: { absolute: 'Hors connexion | Xassida Cloud' },
+    title: { absolute: 'Hors connexion' },
     robots: { index: false, follow: false }
 };
 
@@ -15,7 +15,7 @@ export default function OfflinePage() {
             <img src="/icons/icon-192.png" alt="" width={96} height={96} className="rounded-3xl shadow-lg" />
             <h1 className="text-2xl sm:text-3xl font-bold font-serif">Vous êtes hors connexion</h1>
             <p className="max-w-md text-sm sm:text-base text-gray-300 leading-relaxed">
-                Xassida Cloud a besoin d’internet pour afficher les textes. Vérifiez votre connexion puis réessayez.
+                Vérifiez votre connexion puis réessayez.
             </p>
             {/* Lien classique (et non Link) : on veut un vrai rechargement une fois la connexion revenue */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}

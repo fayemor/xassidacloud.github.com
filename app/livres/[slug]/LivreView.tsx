@@ -206,7 +206,7 @@ export default function LivreView({ x, related, prev, next }: Props) {
 
             <footer className={`border-t py-8 mt-auto ${dark ? 'bg-[#020e0a] border-emerald-900/40 text-gray-400' : 'bg-[#0F3D2E] border-emerald-900/40 text-emerald-100'}`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] font-medium">
-                    <p>© {new Date().getFullYear()} Xassida Cloud. Tous droits réservés.</p>
+                    <p>© {new Date().getFullYear()} Xassida Cloud. Version 3.0 Tous droits réservés.</p>
                     <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">
                         {NAV_ITEMS.map((item) => (
                             <li key={item.id}><Link href={item.href} className="hover:text-amber-300 transition-colors">{item.label}</Link></li>

@@ -553,7 +553,7 @@ export default function LivresPage() {
                         </div>
                         <div className="min-w-0">
                             <span className={`text-lg sm:text-xl font-bold tracking-tight block ${t.title}`}>Xassida Cloud</span>
-                            <span className={`hidden sm:block text-[11px] tracking-wide font-semibold truncate ${t.accent}`}>La bibliothèque numérique du patrimoine mouride</span>
+                            <span className={`hidden sm:block text-[11px] tracking-wide font-semibold truncate ${t.accent}`}>Bibliothèque numérique</span>
                         </div>
                     </Link>
 
@@ -934,7 +934,7 @@ export default function LivresPage() {
                     </ul>
                 </div>
                 <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-8 pt-8 border-t border-emerald-900/40 flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] font-medium text-emerald-200/70">
-                    <p>© {new Date().getFullYear()} Xassida Cloud. Tous droits réservés.</p>
+                    <p>© {new Date().getFullYear()} Xassida Cloud. Version 3.0 Tous droits réservés.</p>
                     <div className="flex gap-6">
                         <Link href="/conditions" className="hover:text-amber-300 transition-colors">Conditions d’utilisation</Link>
                         <Link href="/confidentialite" className="hover:text-amber-300 transition-colors">Politique de confidentialité</Link>
