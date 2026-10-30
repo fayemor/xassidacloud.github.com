@@ -437,6 +437,7 @@ const RAW: Raw[] = [
     ['Ya Rabi', 'يَا رَبِّ', '1hFdaGG_pG3Bhs1DRiBXcP0QgAM1VSoUE', '345', 'Ô mon Seigneur, appel plein de ferveur.'],
     ['Yaa Joumlatane', 'يَا جُمْلَةً', '1j60UbXNrgLSH14ExRLLNE33UMVu6hxZ7', '346', "Invocation par l'ensemble des perfections."],
     ['Yaa kitaabal Kariimi', 'يَا كِتَابَ الْكَرِيمِ', '11fNufMCEGc3YOt2dPgH8VpHsCmKKlb25', '347', 'Ô Livre du Très-Généreux, hommage au Coran.'],
+    //['Yallahu Ya Ahadu', 'يَا كِتَابَ الْكَرِيمِ', '11fNufMCEGc3YOt2dPgH8VpHsCmKKlb25', '369', 'Ô Livre du Très-Généreux, hommage au Coran.'],
     ['Yaa man kafaanii', 'يَا مَنْ كَفَانِي', '1vA5wT4bCK4zDJl5crRO3aYtbQwsGqoxP', '348', 'Ô Celui qui me suffit en toute chose.'],
     ['Yaa Moukrimaa-Yaa Khayra', 'يَا مُكْرِمًا - يَا خَيْرَ', '1Ye-5uSf6Ypk7MD2w0Noafm1XfH_cOpqb', '349', 'Ô Celui qui honore, Ô Meilleur...'],
     ['Yaa mukrimad dayfi', 'يَا مُكْرِمَ الضَّيْفِ', '1MA5dbCTle8B8d20uIFT4zIZ8UXdqv_ZP', '350', "Ô Celui qui honore l'Hôte (l'Eternel accueillant)."],
@@ -548,12 +549,10 @@ const Loader = ({ className = "w-4 h-4" }) => (
     </svg>
 );
 
-/* -------------------------------------------------------------------------- */
-/*  CARTE (même design que l'accueil)                                         */
-/* -------------------------------------------------------------------------- */
 
-function DocCard({ doc, theme, isFav, onToggleFav, onRead, onDownload }: {
-    doc: DocItem; theme: Theme; isFav: boolean;
+
+function DocCard({ doc, theme, isFav, isDownloading, onToggleFav, onRead, onDownload }: {
+    doc: DocItem; theme: Theme; isFav: boolean; isDownloading: boolean;
     onToggleFav: () => void; onRead: () => void; onDownload: () => void;
 }) {
     const ok = Boolean(doc.driveUrl);
@@ -587,12 +586,13 @@ function DocCard({ doc, theme, isFav, onToggleFav, onRead, onDownload }: {
                 <button
                     type="button"
                     onClick={onDownload}
-                    disabled={!ok}
-                    aria-label={`Télécharger ${doc.title}`}
-                    title="Télécharger"
-                    className={`p-3 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${theme.accent}`}
+                    disabled={!ok || isDownloading}
+                    aria-busy={isDownloading}
+                    aria-label={isDownloading ? `Téléchargement de ${doc.title} en cours` : `Télécharger ${doc.title}`}
+                    title={isDownloading ? 'Téléchargement en cours…' : 'Télécharger'}
+                    className={`p-3 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 transition-all duration-200 cursor-pointer hover:scale-125 active:scale-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 ${isDownloading ? 'disabled:opacity-100 disabled:cursor-progress' : ''} ${theme.accent}`}
                 >
-                    <I d={P.download} />
+                    {isDownloading ? <Loader /> : <I d={P.download} />}
                 </button>
                 <button
                     type="button"
@@ -635,6 +635,8 @@ export default function XassidasPage() {
     const [isLoading, setIsLoading] = useState(false);
 
     const [activeReaderItem, setActiveReaderItem] = useState<DocItem | null>(null);
+    const [readerLoading, setReaderLoading] = useState(false);
+    const [downloadingId, setDownloadingId] = useState<string | null>(null);
     const [toastMessage, setToastMessage] = useState('');
     const [reportModalOpen, setReportModalOpen] = useState(false);
     const [reportText, setReportText] = useState('');
@@ -789,10 +791,19 @@ export default function XassidasPage() {
         setOnlyFavs((v) => !v);
     };
 
+    // Ouvre le lecteur ; le loader reste affiché jusqu'à la fin du chargement de l'iframe
+    const openReader = (doc: DocItem) => {
+        setReaderLoading(Boolean(doc.driveUrl));
+        setActiveReaderItem(doc);
+    };
+
     const handleDownload = async (doc: DocItem) => {
+        if (downloadingId) return; // un téléchargement à la fois
         const match = doc.driveUrl?.match(/\/d\/([^/]+)/);
         if (!match) { showToast("Ce document n'est pas encore disponible."); return; }
         const filename = `${slugify(doc.title)}.pdf`;
+        setDownloadingId(doc.id);
+        showToast(`Préparation de « ${doc.title} »…`);
         try {
             const res = await fetch(`/api/download?id=${encodeURIComponent(match[1])}&name=${encodeURIComponent(filename)}`);
             if (!res.ok) throw new Error('download');
@@ -804,9 +815,11 @@ export default function XassidasPage() {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast(`Téléchargement de « ${doc.title} » lancé.`);
+            showToast(`« ${doc.title} » a été téléchargé.`);
         } catch {
             showToast('Le téléchargement du document a échoué.');
+        } finally {
+            setDownloadingId(null);
         }
     };
 
@@ -856,13 +869,18 @@ export default function XassidasPage() {
             <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .animate-fadeIn { animation: fadeIn .25s ease-out both; }
-        @media (prefers-reduced-motion: reduce) { .animate-fadeIn { animation: none; } }
+        @keyframes logoPulse { 0%, 100% { transform: scale(0.8); opacity: .7; } 50% { transform: scale(1.25); opacity: 1; } }
+        .animate-logoPulse { animation: logoPulse 1.2s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-fadeIn { animation: none; }
+          .animate-logoPulse { animation: none; }
+        }
       `}</style>
 
             {/* TOAST */}
             {toastMessage && (
                 <div role="status" aria-live="polite" className="fixed bottom-6 right-6 left-6 sm:left-auto z-[70] bg-[#0F3D2E] text-amber-300 px-5 py-3 rounded-2xl shadow-2xl border border-amber-400/40 text-xs sm:text-sm flex items-center gap-3 animate-fadeIn">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
+                    {downloadingId ? <Loader className="w-4 h-4 shrink-0" /> : <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>}
                     {toastMessage}
                 </div>
             )}
@@ -1061,8 +1079,9 @@ export default function XassidasPage() {
                                         doc={doc}
                                         theme={t}
                                         isFav={favorites.includes(doc.id)}
+                                        isDownloading={downloadingId === doc.id}
                                         onToggleFav={() => toggleFavorite(doc.id)}
-                                        onRead={() => setActiveReaderItem(doc)}
+                                        onRead={() => openReader(doc)}
                                         onDownload={() => handleDownload(doc)}
                                     />
                                 ))}
@@ -1102,19 +1121,34 @@ export default function XassidasPage() {
                         <h2 id="reader-title" className="text-xl sm:text-2xl font-bold font-serif mb-1 pr-10">{activeReaderItem.title}</h2>
                         <p className={`text-xs font-medium mb-4 ${t.accent}`}>Auteur : {activeReaderItem.author}</p>
 
-                        <div className="mb-6 rounded-2xl overflow-hidden border border-emerald-900/20 bg-black">
+                        <div className="relative mb-6 rounded-2xl overflow-hidden border border-emerald-900/20 bg-black">
+                            {readerLoading && (
+                                <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 ${darkMode ? 'bg-[#0d1f18]' : 'bg-white'}`}>
+                                    <div className="animate-logoPulse text-amber-500">
+                                        <Logo className="w-20 h-20" />
+                                    </div>
+                                    <p className={`text-sm font-medium ${t.accent}`}>Chargement...</p>
+                                </div>
+                            )}
                             <iframe
                                 src={activeReaderItem.driveUrl.replace(/\/view.*$/, '/preview')}
                                 className="w-full h-[65vh] sm:h-[75vh]"
                                 allow="autoplay"
                                 title={`Lecture de ${activeReaderItem.title}`}
+                                onLoad={() => setReaderLoading(false)}
                             />
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-                            <button type="button" onClick={() => handleDownload(activeReaderItem)} className="flex-1 bg-amber-400 hover:bg-amber-300 text-[#0F3D2E] font-semibold py-3.5 rounded-xl text-xs sm:text-sm transition-colors shadow-md flex items-center justify-center gap-2">
-                                <I d={P.download} />
-                                <span>Télécharger</span>
+                            <button
+                                type="button"
+                                onClick={() => handleDownload(activeReaderItem)}
+                                disabled={downloadingId === activeReaderItem.id}
+                                aria-busy={downloadingId === activeReaderItem.id}
+                                className="flex-1 bg-amber-400 hover:bg-amber-300 text-[#0F3D2E] font-semibold py-3.5 rounded-xl text-xs sm:text-sm transition-all duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer hover:scale-105 active:scale-105 disabled:cursor-progress disabled:hover:scale-100 disabled:opacity-80"
+                            >
+                                {downloadingId === activeReaderItem.id ? <Loader /> : <I d={P.download} />}
+                                <span>{downloadingId === activeReaderItem.id ? 'Téléchargement en cours…' : 'Télécharger'}</span>
                             </button>
                             <button type="button" onClick={() => setReportModalOpen(true)} className="px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl text-xs font-medium transition-colors">
                                 Signaler une erreur

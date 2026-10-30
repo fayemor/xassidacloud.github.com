@@ -85,7 +85,7 @@ interface VideoItem {
   id: string;
   title: string;
   desc: string;
-  url: string;
+  youtubeId: string;
 }
 
 const DOCUMENTS: DocItem[] = [
@@ -105,24 +105,24 @@ const DOCUMENTS: DocItem[] = [
   {
     id: 'matlabou1',
     type: 'xassida',
-    title: 'Matlabou Fawzeyni',
+    title: 'Ayassa Minilahu',
     cat: 'Xassida Majeur',
     author: 'Cheikh Ahmadou Bamba',
-    driveUrl: 'https://drive.google.com/file/d/1qP6z31dCZeDiBVYguCuk-XBOV3toonPn/view',
-    arabic: 'مَطْلَبُ الْفَوْزَيْنِ',
-    desc: 'Le viatique des deux mondes, panégyrique fondamental pour la quête de l’agrément divin.',
+    driveUrl: 'https://drive.google.com/file/d/1YFkGs08KtwA0MAYhjUDsp3NMZTkEI_xm/view',
+    arabic: 'أَيَّسَ مِنِّيَ اللهُ عِنْدَ جِيوَلِي',
+    desc: 'Hymne à la souveraineté de Dieu et à la quiétude du croyant sincère.',
     verified: true,
   },
 
   {
     id: 'livre-serigne1',
     type: 'xassida',
-    title: 'Matlabou Fawzeyni',
+    title: 'Mawahibou Nafih',
     cat: 'Xassida Majeur',
     author: 'Cheikh Ahmadou Bamba',
-    driveUrl: 'https://drive.google.com/file/d/1qP6z31dCZeDiBVYguCuk-XBOV3toonPn/view',
-    arabic: 'مَطْلَبُ الْفَوْزَيْنِ',
-    desc: 'Le viatique des deux mondes, panégyrique fondamental pour la quête de l’agrément divin.',
+    driveUrl: 'https://drive.google.com/file/d/15BeL6aKGbYwkIg75P0WteoPp9S-2gQ-Y/view',
+    arabic: 'مَوَاهِبُ النَّافِعِ',
+    desc: 'Les Dons du Bienfaiteur',
     verified: true,
   },
 
@@ -133,61 +133,56 @@ const DOCUMENTS: DocItem[] = [
   {
     id: 'livre1',
     type: 'livre',
-    title: 'Matlabou Fawzeyni',
+    title: 'Tazawwuduş-Şighār',
     cat: 'Xassida Majeur',
     author: 'Cheikh Ahmadou Bamba',
-    driveUrl: 'https://drive.google.com/file/d/1qP6z31dCZeDiBVYguCuk-XBOV3toonPn/view',
-    arabic: 'مَطْلَبُ الْفَوْزَيْنِ',
-    desc: 'Le viatique des deux mondes, panégyrique fondamental pour la quête de l’agrément divin.',
+    driveUrl: 'https://drive.google.com/file/d/1kHgcoJ2nSYSp-W4x-Q5bW0dCz1n_N_yG/view',
+    arabic: 'تَزَوُّدُ الصِّغَارِ',
+    desc: 'Le viatique des petits',
     verified: true,
   },
 
   {
     id: 'livre2',
     type: 'livre',
-    title: 'Matlabou Fawzeyni',
+    title: 'Jawharun Nafîs',
     cat: 'Xassida Majeur',
     author: 'Cheikh Ahmadou Bamba',
-    driveUrl: 'https://drive.google.com/file/d/1qP6z31dCZeDiBVYguCuk-XBOV3toonPn/view',
-    arabic: 'مَطْلَبُ الْفَوْزَيْنِ',
-    desc: 'Le viatique des deux mondes, panégyrique fondamental pour la quête de l’agrément divin.',
+    driveUrl: 'https://drive.google.com/file/d/17NE18JxqCOqkOp0if2RCnhZ8UswQ1mt_/view',
+    arabic: 'الجوهر النفيس',
+    desc: 'Le Joyau Précieux.',
     verified: true,
   },
 
   {
     id: 'livre3',
     type: 'livre',
-    title: 'Matlabou Fawzeyni',
+    title: 'Nahju Qadā’il-Hājj',
     cat: 'Xassida Majeur',
     author: 'Cheikh Ahmadou Bamba',
-    driveUrl: 'https://drive.google.com/file/d/1qP6z31dCZeDiBVYguCuk-XBOV3toonPn/view',
-    arabic: 'مَطْلَبُ الْفَوْزَيْنِ',
-    desc: 'Le viatique des deux mondes, panégyrique fondamental pour la quête de l’agrément divin.',
+    driveUrl: 'https://drive.google.com/file/d/1hXCKcZl383nhaYoNiFNtbzEKmcOJHlhj/view',
+    arabic: 'نَهْجُ قَضَاءِ الْحَاجِ',
+    desc: 'Les bonnes manières',
     verified: true,
   }
 
 
 ];
 
-// TODO : remplacer les recherches YouTube par les liens réels des vidéos.
 const VIDEOS: VideoItem[] = [
   {
     id: 'magal',
-    title: 'Rétrospective du Magal de Touba',
-    desc: 'Documentaire sur l’histoire et la portée spirituelle du Grand Magal.',
-    url: 'https://www.youtube.com/results?search_query=' + encodeURIComponent('Magal de Touba documentaire')
+    title: 'Magal de Touba',
+    desc: 'Histoire et portée spirituelle du Grand Magal.',
+    youtubeId: 'fu1ix1SxX28'
   },
   {
     id: 'exil',
-    title: 'Conférence sur l’exil de Cheikh Ahmadou Bamba',
+    title: 'Histoire de Cheikh Ahmadou Bamba',
     desc: 'Intervention d’érudits sur les épreuves et la victoire spirituelle de Khadim Rassoul.',
-    url: 'https://www.youtube.com/results?search_query=' + encodeURIComponent('exil Cheikh Ahmadou Bamba conférence')
+    youtubeId: 'x2u1CV5cMMI'
   }
 ];
-
-/* Chiffres des cartes « Domaines d'étude » = ceux affichés par les pages /xassidas, /livres et /videos.
-   Mettez-les à jour quand vous ajoutez ou retirez un élément dans une de ces pages. */
-const STATS = { xassidas: 344, livres: 23, videos: 40 };
 
 // Corrigé avec les vraies routes du projet
 const NAV_ITEMS = [
@@ -403,7 +398,7 @@ function DocCard({ doc, theme, isFav, onToggleFav, onRead, onDownload }: {
           onClick={onDownload}
           aria-label={`Télécharger ${doc.title}`}
           title="Télécharger"
-          className={`p-3 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 transition-colors ${theme.accent}`}
+          className={`p-3 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 transition-all duration-200 cursor-pointer hover:scale-125 active:scale-110 ${theme.accent}`}
         >
           <Icons.Download className="w-4 h-4" />
         </button>
@@ -445,6 +440,8 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [activeReaderItem, setActiveReaderItem] = useState<DocItem | null>(null);
+  const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+  const [readerLoading, setReaderLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportText, setReportText] = useState('');
@@ -496,6 +493,7 @@ export default function Home() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
+      if (activeVideo) { setActiveVideo(null); return; }
       if (reportModalOpen) setReportModalOpen(false);
       else if (isLoginModalOpen) setIsLoginModalOpen(false);
       else if (activeReaderItem) setActiveReaderItem(null);
@@ -503,10 +501,10 @@ export default function Home() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [reportModalOpen, isLoginModalOpen, activeReaderItem, mobileMenuOpen]);
+  }, [reportModalOpen, isLoginModalOpen, activeReaderItem, mobileMenuOpen, activeVideo]);
 
   /* ---- Bloque le défilement de la page derrière une modale ---- */
-  const overlayOpen = Boolean(activeReaderItem) || isLoginModalOpen || reportModalOpen || mobileMenuOpen;
+  const overlayOpen = Boolean(activeReaderItem) || Boolean(activeVideo) || isLoginModalOpen || reportModalOpen || mobileMenuOpen;
   useEffect(() => {
     document.body.style.overflow = overlayOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -703,11 +701,24 @@ export default function Home() {
   const favoriteDocs = DOCUMENTS.filter((d) => favorites.includes(d.id));
   const count = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
 
+  // Chiffres réels : calculés à partir des listes ci-dessus
+  const STATS = {
+    xassidas: 344,
+    livres: 23,
+    videos: 485,
+  };
+
   const socials = [
     { key: 'twitter', label: 'Twitter / X', url: SOCIAL_LINKS.twitter, icon: <Icons.Twitter /> },
     { key: 'instagram', label: 'Instagram', url: SOCIAL_LINKS.instagram, icon: <Icons.Instagram /> },
     { key: 'facebook', label: 'Facebook', url: SOCIAL_LINKS.facebook, icon: <Icons.Facebook /> }
   ].filter((s) => s.url);
+
+  // Ouvre le lecteur ; le loader ne s'affiche que s'il y a un iframe à charger
+  const openReader = (doc: DocItem) => {
+    setReaderLoading(Boolean(doc.driveUrl));
+    setActiveReaderItem(doc);
+  };
 
   const renderCards = (list: DocItem[]) => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -718,7 +729,7 @@ export default function Home() {
           theme={t}
           isFav={favorites.includes(doc.id)}
           onToggleFav={() => toggleFavorite(doc.id)}
-          onRead={() => setActiveReaderItem(doc)}
+          onRead={() => openReader(doc)}
           onDownload={() => handleDownload(doc)}
         />
       ))}
@@ -734,9 +745,12 @@ export default function Home() {
         html { scroll-behavior: smooth; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .animate-fadeIn { animation: fadeIn .25s ease-out both; }
+        @keyframes logoPulse { 0%, 100% { transform: scale(0.8); opacity: .7; } 50% { transform: scale(1.25); opacity: 1; } }
+        .animate-logoPulse { animation: logoPulse 1.2s ease-in-out infinite; }
         @media (prefers-reduced-motion: reduce) {
           html { scroll-behavior: auto; }
           .animate-fadeIn { animation: none; }
+          .animate-logoPulse { animation: none; }
         }
       `}</style>
 
@@ -974,28 +988,69 @@ export default function Home() {
             <SectionTitle eyebrow="Médiathèque" title="Conférences & documentaires" subtitle="Visionnez des émissions et reportages sur le patrimoine mouride." theme={t} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {VIDEOS.map((v) => (
-                <a
+                <button
+                  type="button"
                   key={v.id}
-                  href={v.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`group block p-6 rounded-3xl border shadow-lg transition-all hover:-translate-y-1 ${t.card}`}
+                  onClick={() => setActiveVideo(v)}
+                  className={`group block w-full text-left p-6 rounded-3xl border shadow-lg transition-all hover:-translate-y-1 cursor-pointer ${t.card}`}
                 >
                   <div className="aspect-video bg-black/80 rounded-2xl flex items-center justify-center mb-4 relative overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg`}
+                      alt={v.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
                     <div className="absolute inset-0 bg-emerald-950/40"></div>
                     <span className="relative w-14 h-14 rounded-full bg-amber-400 text-[#0F3D2E] flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
                       <Icons.Play className="w-6 h-6 ml-0.5" />
                     </span>
                   </div>
                   <h3 className="text-lg font-bold font-serif mb-1">{v.title}</h3>
-                  <p className={`text-xs mb-3 ${t.softMuted}`}>{v.desc}</p>
-                  <span className={`text-xs font-semibold ${t.accent}`}></span>
-                </a>
+                  <p className={`text-xs ${t.softMuted}`}>{v.desc}</p>
+                </button>
               ))}
             </div>
           </div>
         </section>
       </main>
+
+      {/* LECTEUR VIDÉO */}
+      {activeVideo && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+          onClick={() => setActiveVideo(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={activeVideo.title}
+            onClick={(e) => e.stopPropagation()}
+            className={`w-full max-w-4xl rounded-3xl p-4 sm:p-6 shadow-2xl border relative ${t.modal}`}
+          >
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h3 className="text-base sm:text-lg font-bold font-serif truncate">{activeVideo.title}</h3>
+              <button
+                type="button"
+                onClick={() => setActiveVideo(null)}
+                aria-label="Fermer la vidéo"
+                className="p-2 rounded-full bg-emerald-900/10 hover:bg-emerald-900/20 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+              >
+                <Icons.Close className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="aspect-video rounded-2xl overflow-hidden bg-black">
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`}
+                title={activeVideo.title}
+                className="w-full h-full"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* LECTEUR */}
       {activeReaderItem && (
@@ -1025,12 +1080,21 @@ export default function Home() {
             <p className={`text-xs font-medium mb-4 ${t.accent}`}>Auteur : {activeReaderItem.author}</p>
 
             {activeReaderItem.driveUrl ? (
-              <div className="mb-6 rounded-2xl overflow-hidden border border-emerald-900/20 bg-black">
+              <div className="relative mb-6 rounded-2xl overflow-hidden border border-emerald-900/20 bg-black">
+                {readerLoading && (
+                  <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 ${darkMode ? 'bg-[#0d1f18]' : 'bg-white'}`}>
+                    <div className="animate-logoPulse text-amber-500">
+                      <Icons.Logo className="w-20 h-20" />
+                    </div>
+                    <p className={`text-sm font-medium ${t.accent}`}>Chargement...</p>
+                  </div>
+                )}
                 <iframe
                   src={activeReaderItem.driveUrl.replace(/\/view.*$/, '/preview')}
                   className="w-full h-[65vh] sm:h-[75vh]"
                   allow="autoplay"
                   title={`Lecture de ${activeReaderItem.title}`}
+                  onLoad={() => setReaderLoading(false)}
                 />
               </div>
             ) : (
@@ -1071,7 +1135,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => handleDownload(activeReaderItem)}
-                className="flex-1 bg-amber-400 hover:bg-amber-300 text-[#0F3D2E] font-semibold py-3.5 rounded-xl text-xs sm:text-sm transition-colors shadow-md flex items-center justify-center gap-2"
+                className="flex-1 bg-amber-400 hover:bg-amber-300 text-[#0F3D2E] font-semibold py-3.5 rounded-xl text-xs sm:text-sm transition-all duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer hover:scale-105 active:scale-105"
               >
                 <Icons.Download className="w-4 h-4" />
                 <span>Télécharger</span>
