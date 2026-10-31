@@ -44,7 +44,7 @@ const { auth } = initFirebase();
 
 const NOT_CONFIGURED_MSG = "Le service de connexion n'est pas configuré. Vérifiez les variables Firebase.";
 const ARABIC_FONT = "'Amiri','Scheherazade New','Noto Naskh Arabic',serif";
-const PAGE_SIZE = 24; // nombre de cartes affichées à la fois
+const PAGE_SIZE = 350; // nombre de cartes affichées à la fois
 const AUTHOR = 'Cheikh Ahmadou Bamba';
 
 const NAV_ITEMS = [
