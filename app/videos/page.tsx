@@ -395,7 +395,7 @@ const RAW_BY_SECTION: Record<SectionId, Raw[]> = {
         ['[VIDEO] Serigne Moustapha Kébé: Khassida wala qad Karamna', '', demo('kjKO5_4ZUOE'), 'v_056', 'Serigne Moustapha Kébé Yal nafi yag tewer Barke Borom Touba  Cliquez sur le lien...', 'Al Khadimiyyah TV'],
         ['Mafatihoul Jinan WKSM Keur S FatDia71', '', demo('GAXMY6e2o24'), 'v_057', 'Niangoum Kourel MakGnii Wakeur Serigne Massamba keur Sokhna FatDia Mbacké 1971(...', 'Paap'],
         ['jazbou oubite jumaji wksm 1963', '', demo('YsQVKqJlILg'), 'v_058', 'Niangoum Kourel MakGnii Wakeur Serigne Massamba OUbitek Dioumajii 1963...', 'Paap'],
-        ['Karamna  Serigne Elhadji Cissé', '', demo('EF9NUvCqzug'), 'v_059', 'وَلَقَدۡ كَرَّمۡنَا بَنِىٓ ءَادَمَ وَحَمَلۡنَـٰهُمۡ فِى ٱلۡبَرِّ وَٱلۡبَحۡرِ وَر...', 'Moustapha Seck'],
+        ['Karamna  Serigne Elhadji Cissé', '', demo('EF9NUvCqzug'), 'v_059', 'وَلَقَدۡ كَرَّمۡنَا بَنِىٓ ءَادَمَ وَحَمَلۡنَـٰهُمۡ فِى ٱلۡبَرِّ وَٱلۡبَحۡرِ وَر...', 'Moustapha Seck'],
         ['Khassida : AL KHOURAAN Rajaz Serigne Daramé', '', demo('R5kGNUE_ydQ'), 'v_060', 'Baye Daramé...', 'Jalibatoul Maziyah'],
         ['Qaalu Liyarkan   Serigne Cissé Original', '', demo('P9NMdttWPvg'), 'v_061', 'Prestation authentique.', 'Abdoul ahad Fall'],
         ['DIÂLIBATAL MARÂKHIBI RAJAZ BAYE OUMAR DIOUF', '', demo('6kMMLNPM_os'), 'v_062', 'Prestation authentique.', 'Jalibatoul Maziyah'],
@@ -734,7 +734,7 @@ const RAW_BY_SECTION: Record<SectionId, Raw[]> = {
         ['Alhamdoulilah leuzi youdiasi _SERIGNE BOLLE MBAYE', '', demo('NRJm-aXGBaY'), 'v_61', 'Suivez-nous sur tous les réseaux sociaux https://www.facebook.com/marakhitv http...', 'Marakhib Tv'],
         ['Attaba Serigne Bollé Mbaye | Kourel Tazawoudou Sighar HT Dakar | Al Mashrabou Shafi Ramadan 2026 J20', '', demo('5Vc7AJM3mAs'), 'v_62', 'Khassida Attaba Serigne Bollé Mbaye par Kourel Tazawudus Sighar HT Dakar au 20èm...', 'Diawartoulah TV'],
         ['#La Voix D&#39;or Du Khassida par Serigne Bollé Mbaye Lou daw yaram❤️😭', '', demo('ymhKOnGmNSQ'), 'v_63', 'Abonnez-vous et activité la cloche dem notification info : (+221) 768211426 #kha...', 'XASSIDA STUDIO HD'],
-        ['Serigne Bollé MBAYE Khassida MAWAHIBOU', '', demo('ID1lBT-JlLg'), 'v_64', 'Khassaides de Serigne Touba #RADIASS #khassida #touba #xasiida....', 'Sunu Thiante'],
+        ['Serigne Bollé MBAYE Khassida MAWAHIBOU', '', demo('ID1lBT-JlLg'), 'v_64', 'Khassaides de Serigne Touba #RADIASS #khassida #touba #xasiida....', 'Sunu Thiante'],
         ['Magal Magal Daroul Mouhty 2016: Rajass Khassida par Serigne Bollé Mbaye', '', demo('-957xuurmqc'), 'v_65', 'Abonnez-vous gratuitement à la chaîne Alkhadimiyyah.Com pour rester informé chaq...', 'Al Khadimiyyah TV'],
         ['Serigne Bollé Mbaye : &quot;DIAALIBATOUL MARÂKHIB&quot;', '', demo('fGJ47Fd6X1Y'), 'v_66', 'Prestation authentique de khassida.', 'Jalibatoul Maziyah'],
         ['Khassida  Athaba, Huqqal Bukka U   Lil Mustafa Nawaytu par Serigne Bollé Mbaye', '', demo('mnteKmzb_p0'), 'v_67', 'Prestation authentique de khassida.', 'mor thiam'],
@@ -923,7 +923,7 @@ function VideoCard({ video, theme, isFav, onToggleFav, onWatch }: {
                     onClick={onWatch}
                     disabled={!ok}
                     aria-label={ok ? `Regarder ${video.title}` : `${video.title} : bientôt disponible`}
-                    className="group relative block w-full aspect-video overflow-hidden bg-black disabled:cursor-not-allowed"
+                    className="group relative block w-full aspect-video overflow-hidden bg-black cursor-pointer disabled:cursor-not-allowed"
                 >
                     <VideoPreview video={video} />
                 </button>
@@ -996,6 +996,7 @@ export default function VideosPage() {
     const [isLoading, setIsLoading] = useState(false);
 
     const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+    const [readerLoading, setReaderLoading] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [reportModalOpen, setReportModalOpen] = useState(false);
     const [reportText, setReportText] = useState('');
@@ -1150,6 +1151,12 @@ export default function VideosPage() {
         setOnlyFavs((v) => !v);
     };
 
+    // Ouvre le lecteur ; le loader reste affiché jusqu'à ce que la vidéo soit prête à jouer
+    const openVideo = (video: VideoItem) => {
+        setReaderLoading(Boolean(video.source));
+        setActiveVideo(video);
+    };
+
     const handleReportSubmit = async () => {
         const text = reportText.trim();
         if (!text || !activeVideo) return;
@@ -1210,7 +1217,12 @@ export default function VideosPage() {
             <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .animate-fadeIn { animation: fadeIn .25s ease-out both; }
-        @media (prefers-reduced-motion: reduce) { .animate-fadeIn { animation: none; } }
+        @keyframes logoPulse { 0%, 100% { transform: scale(0.8); opacity: .7; } 50% { transform: scale(1.25); opacity: 1; } }
+        .animate-logoPulse { animation: logoPulse 1.2s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-fadeIn { animation: none; }
+          .animate-logoPulse { animation: none; }
+        }
       `}</style>
 
             {/* TOAST */}
@@ -1446,7 +1458,7 @@ export default function VideosPage() {
                                                             theme={t}
                                                             isFav={favorites.includes(video.id)}
                                                             onToggleFav={() => toggleFavorite(video.id)}
-                                                            onWatch={() => setActiveVideo(video)}
+                                                            onWatch={() => openVideo(video)}
                                                         />
                                                     ))}
                                                 </div>
@@ -1490,7 +1502,15 @@ export default function VideosPage() {
                         <h2 id="reader-title" className="text-xl sm:text-2xl font-bold font-serif mb-1 pr-10">{activeVideo.title}</h2>
                         <p className={`text-xs font-medium mb-4 ${t.accent}`}>Par {activeVideo.author}</p>
 
-                        <div className="mb-4 rounded-2xl overflow-hidden border border-emerald-900/20 bg-black aspect-video">
+                        <div className="relative mb-4 rounded-2xl overflow-hidden border border-emerald-900/20 bg-black aspect-video">
+                            {readerLoading && (
+                                <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 ${darkMode ? 'bg-[#0d1f18]' : 'bg-white'}`}>
+                                    <div className="animate-logoPulse text-amber-500">
+                                        <Logo className="w-20 h-20" />
+                                    </div>
+                                    <p className={`text-sm font-medium ${t.accent}`}>Chargement...</p>
+                                </div>
+                            )}
                             {activeVideo.source.kind === 'file' ? (
                                 <video
                                     key={activeVideo.id}
@@ -1501,6 +1521,8 @@ export default function VideosPage() {
                                     preload="metadata"
                                     controlsList="nodownload"
                                     poster={activeVideo.thumb}
+                                    onLoadedData={() => setReaderLoading(false)}
+                                    onError={() => setReaderLoading(false)}
                                     className="w-full h-full"
                                 >
                                     Votre navigateur ne peut pas lire cette vidéo.
@@ -1514,6 +1536,7 @@ export default function VideosPage() {
                                     allowFullScreen
                                     referrerPolicy="strict-origin-when-cross-origin"
                                     title={`Lecture de ${activeVideo.title}`}
+                                    onLoad={() => setReaderLoading(false)}
                                 />
                             )}
                         </div>
